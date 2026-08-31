@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Robodiag — Active robot health checks with excitation, multimodal sensing, health baselines and evidence-backed diagnosis for manufacturing and service." />
+  <title>Robodiag — Know your robot before it fails.</title>
+  <style>
+    @font-face{font-family:Comfortaa;src:url('Comfortaa.ttf') format('truetype');font-weight:100 900;font-style:normal}
+
+    :root{
+      --ink:#25222b;
+      --muted:#77727b;
+      --paper:#fbfaf7;
+      --lilac:#dcd1ee;
+      --cream:#f1e5c8;
+      --mint:#cfe6dc;
+      --purple:#79628e;
+      --purple-deep:#5f4a73;
+      --line:#d8d2d0;
+      --card:#ffffff;
+      --surface:#ffffff;
+      --grid:#e9e3df;
+      --header-bg:rgba(251,250,247,.86);
+      --dark-section:#29242e;
+      --dark-node:#352e3c;
+      --dark-node-line:#514656;
+      --pixel:4px;
+      color-scheme:light;
+    }
+
+    html[data-theme="dark"]{
+      --ink:#f0ebf2;
+      --muted:#aaa2ae;
+      --paper:#18151d;
+      --lilac:#453650;
+      --cream:#51452f;
+      --mint:#29453b;
+      --purple:#d0addd;
+      --purple-deep:#e0c5e8;
+      --line:#443b48;
+      --card:#221e27;
+      --surface:#201c24;
+      --grid:#302a34;
+      --header-bg:rgba(24,21,29,.88);
+      --dark-section:#100e13;
+      --dark-node:#1c1820;
+      --dark-node-line:#3e3544;
+      color-scheme:dark;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+    html[lang="zh-CN"] body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    html[lang="zh-CN"] .hero h1,
+    html[lang="zh-CN"] .section-intro h2,
+    html[lang="zh-CN"] .dark h2,
+    html[lang="zh-CN"] .cta h2,
+    html[lang="zh-CN"] .vision h2{letter-spacing:-.045em}
+    a{color:inherit;text-decoration:none}
+    .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;letter-spacing:.02em}
+
+    .pixel-grid{
+      position:fixed;inset:0;pointer-events:none;opacity:.16;z-index:-1;
+      background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size:32px 32px;
+      mask-image:linear-gradient(to bottom,black,transparent 78%);
+    }
+
+    .shell{max-width:1180px;margin:0 auto;padding-left:28px;padding-right:28px}
+
+    /* ── Header ── */
+    .site-header{
+      height:76px;display:flex;align-items:center;justify-content:space-between;
+      max-width:1180px;margin:auto;padding:0 28px;position:relative;z-index:20;
+      background:var(--header-bg);backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;letter-spacing:-.05em}
+    .brand-word{font-family:Comfortaa,ui-rounded,system-ui,sans-serif;font-weight:700;letter-spacing:-.02em}
+    .brand-mark{
+      display:inline-grid;place-items:center;width:29px;height:29px;background:var(--ink);color:#fff;
+      font-size:10px;letter-spacing:-.1em;box-shadow:4px 4px 0 var(--lilac);
+    }
+    .nav{display:flex;gap:30px;color:#6e6871;font-size:12px;font-weight:700}
+    .nav a:hover{color:var(--purple)}
+    .nav-cta{font-size:12px;font-weight:800;border-bottom:2px solid var(--ink);padding-bottom:3px}
+    .nav-cta span{font-size:17px;margin-left:7px}
+
+
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .utility-switch{
+      height:34px;min-width:44px;padding:0 10px;border:1px solid var(--line);
+      background:var(--card);color:var(--ink);font:inherit;font-size:10px;font-weight:900;
+      cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      box-shadow:3px 3px 0 color-mix(in srgb,var(--lilac) 68%,transparent);
+      transition:transform .16s,background .2s,color .2s,border-color .2s;
+    }
+    .utility-switch:hover{transform:translate(-2px,-2px)}
+    .theme-icon{font-size:14px;line-height:1}
+    html[data-theme="dark"] .brand-mark{color:#211c25;box-shadow:4px 4px 0 #5e476c}
+    html[data-theme="dark"] .button-dark{color:#211c25}
+    html[data-theme="dark"] .button-light{background:var(--card);color:var(--ink)}
+    html[data-theme="dark"] .telemetry-chip{background:#221e27;box-shadow:4px 4px 0 #453650;color:var(--ink)}
+    html[data-theme="dark"] .why-box,
+    html[data-theme="dark"] .product-card,
+    html[data-theme="dark"] .use-card,
+    html[data-theme="dark"] .cta{background:var(--card)}
+    html[data-theme="dark"] .why-box.good{background:var(--mint)}
+    html[data-theme="dark"] .mini-ui{background:#100e13;border-color:#514656}
+    html[data-theme="dark"] .hero h1 em:after{opacity:.68}
+    html[data-theme="dark"] .orbit{border-color:#5e4a69}
+    html[data-theme="dark"] .robot-shadow{background:#3a333d}
+    html[data-theme="dark"] .dark{background:var(--dark-section)}
+    html[data-theme="dark"] .pipe-node{background:var(--dark-node);border-color:var(--dark-node-line)}
+    html[data-theme="dark"] footer{color:#948b99}
+
+    /* ── Buttons ── */
+    .button{
+      display:inline-flex;align-items:center;gap:18px;padding:14px 18px;font-size:12px;font-weight:800;
+      transition:transform .18s,box-shadow .18s;border:0;cursor:pointer;
+    }
+    .button:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 var(--lilac)}
+    .button-dark{background:var(--ink);color:#fff}
+    .button-light{background:var(--card);color:var(--ink)}
+    .button span{font-size:20px;line-height:0}
+    .text-link{font-size:12px;font-weight:800;color:var(--muted)}
+    .text-link span{font-size:17px;margin-left:8px}
+
+    /* ── Hero ── */
+    .hero{
+      min-height:680px;display:grid;grid-template-columns:1.02fr .98fr;align-items:center;
+      padding-top:60px;padding-bottom:80px;gap:28px;
+    }
+    .eyebrow{font-size:10px;letter-spacing:.2em;font-weight:900;color:var(--purple);margin-bottom:19px}
+    .status-dot{display:inline-block;width:8px;height:8px;background:#6ba286;border-radius:50%;margin-right:9px;box-shadow:0 0 0 4px #dcece5}
+    .hero h1{
+      font-size:clamp(48px,6.2vw,86px);line-height:1.03;letter-spacing:-.09em;margin:0 0 26px;font-weight:800;
+    }
+    .hero h1 em{font-style:normal;color:var(--purple);position:relative}
+    .hero h1 em:after{
+      content:'';position:absolute;left:3px;right:0;bottom:3px;height:5px;background:var(--cream);
+      z-index:-1;transform:rotate(-2deg);
+    }
+    .hero-lede{max-width:540px;color:var(--muted);font-size:16px;line-height:1.9;margin:0}
+    .hero-actions{display:flex;align-items:center;gap:26px;margin-top:36px;flex-wrap:wrap}
+    .hero-proof{display:flex;gap:10px;align-items:center;color:#aaa2a9;font-size:10px;letter-spacing:.04em;margin-top:52px}
+    .proof-icon{color:var(--purple);font-size:16px}
+
+    /* ── Robot (low-resolution pixel humanoid) ── */
+    .hero-art{height:540px;position:relative;display:grid;place-items:center}
+    .orbit{position:absolute;border:1px solid #d5c6df;border-radius:50%;transform:rotate(-22deg)}
+    .orbit-one{width:430px;height:195px}
+    .orbit-two{width:410px;height:410px;border-style:dashed;opacity:.7}
+    .pixel-spark{position:absolute;color:var(--purple);font-size:27px;font-family:monospace;line-height:1}
+    .spark-a{top:70px;right:52px}
+    .spark-b{bottom:80px;left:42px;font-size:19px;color:#b39258}
+
+    .robot-card{
+      position:relative;width:246px;height:364px;z-index:2;
+      filter:drop-shadow(14px 18px 0 rgba(44,35,49,.12));
+    }
+    .pixel-robot{
+      position:absolute;inset:0;width:100%;height:100%;
+      image-rendering:pixelated;image-rendering:crisp-edges;
+      shape-rendering:crispEdges;
+      overflow:visible;
+    }
+    .pixel-robot .outline{fill:#25222b}
+    .pixel-robot .lavender{fill:#dcd1ee}
+    .pixel-robot .lavender-dark{fill:#9f8caf}
+    .pixel-robot .mint{fill:#cfe6dc}
+    .pixel-robot .mint-dark{fill:#7b9e91}
+    .pixel-robot .cream{fill:#f1e5c8}
+    .pixel-robot .screen{fill:#334239}
+    .pixel-robot .screen-hi{fill:#d7f5db}
+    .pixel-robot .white{fill:#fff}
+    .pixel-robot .green{fill:#73a68b}
+    .pixel-robot .purple{fill:#79628e}
+
+    .pixel-eye{animation:pixelBlink 5s steps(1,end) infinite;transform-box:fill-box;transform-origin:center}
+    @keyframes pixelBlink{0%,91%,100%{transform:scaleY(1)}93%,96%{transform:scaleY(.16)}}
+    .pixel-status{animation:pixelPulse 1.8s steps(2,end) infinite}
+    @keyframes pixelPulse{0%,100%{opacity:1}50%{opacity:.45}}
+    .pixel-scan{
+      position:absolute;left:38px;right:34px;top:70px;height:4px;z-index:4;
+      background:rgba(255,255,255,.6);mix-blend-mode:screen;opacity:.52;
+      box-shadow:0 0 0 1px rgba(121,98,142,.06);
+      animation:pixelScan 3.2s steps(9,end) infinite;
+    }
+    @keyframes pixelScan{0%{transform:translateY(0)}50%{transform:translateY(206px)}100%{transform:translateY(0)}}
+    .robot-shadow{position:absolute;left:14px;bottom:14px;width:218px;height:14px;background:#cfc7cf;z-index:-1}
+
+    .telemetry-chip{
+      position:absolute;background:var(--card);border:1px solid var(--line);padding:9px 12px;font-size:9px;
+      font-weight:900;letter-spacing:.09em;box-shadow:4px 4px 0 #ded5e1;z-index:3;
+    }
+    .chip-top{right:-4px;top:118px}
+    .chip-bottom{left:-8px;bottom:88px}
+    .chip-vision{left:-6px;top:64px}
+    .chip-acoustic{right:-4px;top:290px}
+    .chip-torque{left:-6px;top:240px}
+    .chip-bottom strong{color:#6b9c82;margin-left:10px}
+    .chip-bottom span{color:var(--purple);font-size:15px;margin-left:8px}
+    .mini-pulse{display:inline-block;width:7px;height:7px;background:#73a68b;border-radius:0;margin-right:6px;animation:pulse 1.8s steps(2,end) infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+    /* hover -> 眨眼 */
+    .robot-card:hover .pixel-eye{animation:hoverBlink 1s steps(1,end)}
+    @keyframes hoverBlink{0%,15%{transform:scaleY(1)}25%,40%{transform:scaleY(.16)}50%,65%{transform:scaleY(1)}75%,90%{transform:scaleY(.16)}100%{transform:scaleY(1)}}
+
+    /* ── Ticker ── */
+    .ticker{
+      overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+      padding:16px 0;color:#9a8aa3;font-size:10px;letter-spacing:.2em;font-weight:900;white-space:nowrap;
+    }
+    .ticker-track{display:flex;width:max-content;align-items:center;animation:tickerScroll 26s linear infinite}
+    .ticker-track span{display:inline-flex;align-items:center;gap:28px;padding-right:28px;flex-shrink:0}
+    .ticker i{font-style:normal;color:#b99dc7;font-size:15px}
+    @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-25%)}}
+
+    /* ── Sections ── */
+    section{padding:110px 0}
+    .section-intro{max-width:740px}
+    .section-intro.centered{text-align:center;margin:0 auto 52px}
+    .section-intro h2,.dark h2,.cta h2{
+      font-size:clamp(34px,4.3vw,54px);line-height:1.12;letter-spacing:-.08em;margin:0 0 20px;
+    }
+    .section-intro h2 em,.dark h2 em,.cta h2 em{font-style:normal;color:var(--purple)}
+    .section-intro p{color:var(--muted);font-size:14px;line-height:1.9;max-width:470px;margin:0}
+
+    /* Method cards */
+    .process{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:58px}
+    .process-card{
+      background:var(--lilac);border:1px solid var(--line);padding:26px;position:relative;min-height:250px;
+      transition:transform .2s;
+    }
+    .process-card:nth-child(2){background:var(--cream)}
+    .process-card:nth-child(3){background:var(--mint)}
+    .process-card:nth-child(4){background:#e7e0ec}
+    .process-card:hover{transform:translateY(-7px)}
+    .num{font-size:11px;font-weight:900;color:rgba(37,34,43,.5)}
+    .process-card h3{font-size:21px;margin:40px 0 10px;letter-spacing:-.04em}
+    .process-card p{color:#5f5963;font-size:13px;margin:0;line-height:1.7}
+    .process-card .mini{margin-top:22px;font-size:11px;color:#6e6572}
+    .arrow-row{margin-top:30px;color:#8a8290;font-size:12px;font-weight:700;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .arrow-row b{color:var(--purple)}
+
+
+    /* ── 望闻问切 / Four diagnostic senses ── */
+    .four-senses{
+      margin-top:84px;padding:38px;border:1px solid var(--line);
+      background:var(--surface);position:relative;overflow:hidden;
+    }
+    .four-senses:before{
+      content:"望  闻  问  切";position:absolute;right:22px;top:-18px;
+      font-size:78px;line-height:1;font-weight:900;letter-spacing:.04em;
+      color:var(--lilac);opacity:.34;white-space:nowrap;pointer-events:none;
+    }
+    .sense-head{position:relative;z-index:1;display:flex;justify-content:space-between;gap:40px;align-items:flex-end}
+    .sense-head .section-intro{max-width:650px}
+    .sense-kicker{
+      font-size:11px;font-weight:900;letter-spacing:.15em;color:var(--purple);
+      white-space:nowrap;padding-bottom:4px;
+    }
+    .sense-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:36px;position:relative;z-index:1}
+    .sense-card{
+      min-height:250px;border:1px solid var(--line);background:var(--card);padding:22px;
+      transition:transform .2s,box-shadow .2s;
+    }
+    .sense-card:nth-child(1){background:var(--lilac)}
+    .sense-card:nth-child(2){background:var(--cream)}
+    .sense-card:nth-child(3){background:var(--mint)}
+    .sense-card:nth-child(4){background:color-mix(in srgb,var(--lilac) 62%,var(--card))}
+    .sense-card:hover{transform:translateY(-6px);box-shadow:5px 5px 0 color-mix(in srgb,var(--purple) 22%,transparent)}
+    .sense-glyph{font-size:46px;font-weight:900;line-height:1;margin-bottom:28px;color:var(--ink)}
+    .sense-card small{display:block;font-size:9px;font-weight:900;letter-spacing:.13em;color:var(--purple);margin-bottom:7px}
+    .sense-card h3{font-size:20px;margin:0 0 10px;letter-spacing:-.04em}
+    .sense-card p{font-size:12px;line-height:1.75;color:color-mix(in srgb,var(--ink) 68%,transparent);margin:0}
+    .sense-signals{margin-top:18px;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.02em}
+    html[data-theme="dark"] .four-senses{background:#1d1921}
+    html[data-theme="dark"] .process-card:nth-child(4){background:#3f3448}
+    html[data-theme="dark"] .process-card p,
+    html[data-theme="dark"] .process-card .mini,
+    html[data-theme="dark"] .list div{color:#c2b8c5}
+    @media(max-width:900px){
+      .sense-head{display:block}
+      .sense-kicker{margin-top:16px}
+      .sense-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:520px){
+      .four-senses{padding:24px}
+      .four-senses:before{font-size:50px;top:-8px}
+      .sense-grid{grid-template-columns:1fr}
+    }
+
+    /* Why */
+    .why-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:50px}
+    .why-box{padding:34px;border:1px solid var(--line);background:var(--card)}
+    .why-box.good{background:var(--mint)}
+    .why-box h3{margin:0 0 20px;font-size:24px;letter-spacing:-.03em}
+    .list{display:grid;gap:4px}
+    .list div{display:flex;align-items:center;gap:12px;padding:9px 0;color:#5f5963;font-size:14px;border-bottom:1px solid rgba(37,34,43,.07)}
+    .list div:last-child{border-bottom:0}
+    .badx{color:#b9a9a9;font-weight:800}.goodx{color:#4f9a7e;font-weight:800}
+
+    /* Products */
+    .products{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+    .product-card{background:var(--card);border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;min-height:430px;transition:transform .2s}
+    .product-card:hover{transform:translateY(-7px)}
+    .product-card .num{color:var(--purple)}
+    .product-card h3{font-size:23px;margin:14px 0 10px;letter-spacing:-.04em}
+    .product-card > p{color:#6e6770;font-size:13px;margin:0;line-height:1.75;flex:1}
+    .mini-ui{
+      margin-top:28px;border:1px solid #2b2831;background:#1f1c26;border-radius:4px;
+      padding:16px;font-size:11px;color:#cfc9d6;min-height:180px;
+    }
+    .ui-top{display:flex;justify-content:space-between;color:#8d8698;font-size:9px;margin-bottom:12px}
+    .code-line{color:#d8d2de;padding:3px 0}
+    .code-line .g{color:#b9e6a8}
+    .metric{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:11px}
+    .metric:last-child{border-bottom:0}
+    .metric span:first-child{color:#8d8698}
+    .metric strong{font-weight:600;color:#fff}
+
+    /* Architecture */
+    .dark{background:var(--dark-section);color:#fff;padding:120px 0}
+    .dark .section-intro p{color:#bdb4bf}
+    .dark .eyebrow{color:#c4a8d1}
+    .dark h2 em{color:#d5b9df}
+    .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:center;margin-top:50px}
+    .pipe-node{background:var(--dark-node);border:1px solid var(--dark-node-line);padding:24px 20px;min-height:130px}
+    .pipe-node small{color:#9a90a5;font-size:11px}
+    .pipe-node h4{margin:26px 0 0;font-size:17px;color:#fff}
+    .pipe-arrow{display:grid;place-items:center;color:#c4a8d1;font-size:26px}
+
+    /* Use cases */
+    .use-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:50px}
+    .use-card{background:var(--card);border:1px solid var(--line);padding:28px;transition:transform .2s}
+    .use-card:hover{transform:translateY(-7px)}
+    .use-card h3{font-size:20px;margin:20px 0 8px;letter-spacing:-.03em}
+    .use-card p{color:#6e6770;font-size:13px;margin:0;line-height:1.75}
+    .use-icon{width:46px;height:46px;border:1px solid var(--line);display:grid;place-items:center;color:var(--purple);background:var(--lilac);font-size:15px;font-weight:900}
+
+    /* Vision */
+    .vision{text-align:center;padding:135px 0}
+    .vision h2{font-size:clamp(35px,4.5vw,62px);line-height:1.12;letter-spacing:-.08em;max-width:980px;margin:0 auto}
+    .vision h2 em{font-style:normal;color:var(--purple)}
+    .vision p{margin:26px auto 0;max-width:700px;color:#8b848f;font-size:17px;line-height:1.9}
+    .vision .line{width:140px;height:1px;margin:36px auto;background:linear-gradient(90deg,transparent,var(--purple),transparent)}
+
+    /* CTA */
+    .cta-wrap{padding:0 0 120px}
+    .cta{
+      border:1px solid var(--line);padding:54px;display:flex;justify-content:space-between;align-items:center;gap:30px;
+      background:radial-gradient(circle at 85% 50%,rgba(121,98,142,.10),transparent 30%),#fff;
+    }
+    .cta h2{font-size:clamp(30px,4vw,48px);margin:0 0 8px;letter-spacing:-.04em}
+    .cta p{margin:0;color:#8b848f}
+
+    footer{border-top:1px solid var(--line);padding:28px 0 44px;color:#8b848f;font-size:12px}
+    .footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+    .reveal.in-view{opacity:1;transform:translateY(0)}
+
+    @media (max-width: 900px){
+      .nav{display:none}
+      .nav-cta{display:none}
+      .header-actions{margin-left:auto}
+      .hero{grid-template-columns:1fr;padding-top:40px}
+      .hero-art{height:470px;order:-1}
+      .process{grid-template-columns:1fr 1fr}
+      .products,.use-grid,.why-wrap{grid-template-columns:1fr}
+      .pipeline{grid-template-columns:1fr}
+      .pipe-arrow{transform:rotate(90deg)}
+      .cta{flex-direction:column;align-items:flex-start}
+    }
+    @media (max-width: 520px){
+      .site-header,.shell{padding-left:20px;padding-right:20px}
+      .utility-switch{min-width:38px;padding:0 8px}
+      .lang-label{display:none}
+      .hero h1{font-size:48px}
+      .hero-art{transform:scale(.82);margin:-30px -45px}
+      .process{grid-template-columns:1fr}
+      .product-card{min-height:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="pixel-grid" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Robodiag home">
+      <span class="brand-mark">RD</span><span>Robodiag</span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#method" data-i18n="nav.method">Method</a>
+      <a href="#product" data-i18n="nav.product">Product</a>
+      <a href="#usecases" data-i18n="nav.usecases">Use Cases</a>
+      <a href="#company" data-i18n="nav.company">Company</a>
+    </nav>
+    <div class="header-actions">
+      <button class="utility-switch" id="langToggle" type="button" aria-label="Switch language">
+        <span class="lang-label">中文</span>
+      </button>
+      <button class="utility-switch" id="themeToggle" type="button" aria-label="Switch color theme">
+        <span class="theme-icon">☾</span>
+      </button>
+      <a class="nav-cta" href="mailto:hello@robodiag.ai"><span data-i18n="nav.demo">Request a Demo</span> <span>↗</span></a>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span> <span data-i18n="hero.eyebrow">ROBOT DIAGNOSTICS, REIMAGINED</span></div>
+          <h1 data-i18n-html="hero.title">Know your robot <em>before it fails.</em></h1>
+          <p class="hero-lede" data-i18n="hero.lede">Robodiag actively exercises robots, captures internal telemetry and external signals, and turns anomalies into evidence-backed diagnosis — from the factory line to the field.</p>
+          <div class="hero-actions">
+            <a class="button button-dark" href="mailto:hello@robodiag.ai"><span data-i18n="nav.demo">Request a Demo</span> <span>→</span></a>
+            <a class="text-link" href="#method"><span data-i18n="hero.how">See How It Works</span> <span>↓</span></a>
+          </div>
+          <div class="hero-proof"><span class="proof-icon">✦</span><span data-i18n="hero.proof">Active excitation · Multimodal sensing · Evidence-based diagnosis</span></div>
+        </div>
+
+        <div class="hero-art" aria-label="Hand-built pixel robot illustration">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="pixel-spark spark-a">✦</div><div class="pixel-spark spark-b">◆</div>
+          <div class="robot-card" aria-label="Cute pixel-art humanoid robot">
+            <svg class="pixel-robot" viewBox="0 0 246 364" role="img" aria-hidden="true">
+              <!-- offset pixel shadow -->
+              <rect class="purple" x="78" y="34" width="108" height="12" opacity=".38"/>
+              <rect class="purple" x="186" y="48" width="12" height="78" opacity=".38"/>
+              <rect class="purple" x="74" y="154" width="104" height="12" opacity=".22"/>
+              <rect class="purple" x="178" y="166" width="12" height="94" opacity=".22"/>
+              <rect class="purple" x="92" y="272" width="28" height="12" opacity=".24"/>
+              <rect class="purple" x="142" y="272" width="28" height="12" opacity=".24"/>
+              <rect class="purple" x="84" y="338" width="42" height="10" opacity=".30"/>
+              <rect class="purple" x="134" y="338" width="42" height="10" opacity=".30"/>
+
+              <g transform="translate(0,10)">
+              <!-- antenna -->
+              <rect class="outline" x="116" y="0" width="12" height="18"/>
+              <rect class="outline" x="110" y="0" width="24" height="8"/>
+              <rect class="lavender" x="116" y="0" width="12" height="8"/>
+              <rect class="lavender-dark pixel-status" x="110" y="0" width="24" height="8" opacity=".55"/>
+
+              <!-- big cute head -->
+              <rect class="outline" x="58" y="18" width="130" height="110"/>
+              <rect class="outline" x="46" y="40" width="12" height="56"/>
+              <rect class="outline" x="188" y="40" width="12" height="56"/>
+              <rect class="lavender" x="66" y="26" width="114" height="94"/>
+              <rect class="lavender-dark" x="66" y="26" width="114" height="10"/>
+
+              <!-- face screen -->
+              <rect class="outline" x="82" y="50" width="82" height="42"/>
+              <rect class="screen" x="90" y="58" width="66" height="26"/>
+              <rect class="screen-hi pixel-eye" x="100" y="62" width="12" height="10"/>
+              <rect class="screen-hi pixel-eye" x="134" y="62" width="12" height="10"/>
+              <rect class="white" x="104" y="62" width="4" height="4"/>
+              <rect class="white" x="138" y="62" width="4" height="4"/>
+              <!-- blush -->
+              <rect x="88" y="80" width="8" height="4" fill="#f4b8c7"/>
+              <rect x="150" y="80" width="8" height="4" fill="#f4b8c7"/>
+              <!-- smile -->
+              <rect class="outline" x="108" y="100" width="28" height="4"/>
+              <rect class="outline" x="104" y="96" width="4" height="4"/>
+              <rect class="outline" x="136" y="96" width="4" height="4"/>
+              </g>
+
+              <!-- neck -->
+              <rect class="outline" x="108" y="138" width="30" height="8"/>
+              <rect class="cream" x="114" y="138" width="18" height="8"/>
+
+              <!-- small body -->
+              <rect class="outline" x="66" y="146" width="114" height="98"/>
+              <rect class="mint" x="74" y="154" width="98" height="82"/>
+              <rect class="mint-dark" x="74" y="154" width="98" height="10"/>
+              <rect class="outline" x="88" y="170" width="70" height="48"/>
+              <rect class="screen" x="96" y="178" width="54" height="32"/>
+              <text x="123" y="188" text-anchor="middle" fill="#a9c7b5"
+                    font-family="monospace" font-size="7" font-weight="700" data-i18n="robot.health">HEALTH</text>
+              <!-- pixel "98%" -->
+              <g class="screen-hi">
+                <rect x="106" y="190" width="9" height="3"/><rect x="106" y="193" width="3" height="3"/><rect x="112" y="193" width="3" height="3"/><rect x="106" y="196" width="9" height="3"/><rect x="112" y="199" width="3" height="3"/><rect x="106" y="202" width="9" height="3"/>
+                <rect x="118" y="190" width="9" height="3"/><rect x="118" y="193" width="3" height="3"/><rect x="124" y="193" width="3" height="3"/><rect x="118" y="196" width="9" height="3"/><rect x="118" y="199" width="3" height="3"/><rect x="124" y="199" width="3" height="3"/><rect x="118" y="202" width="9" height="3"/>
+                <rect x="130" y="190" width="3" height="3"/><rect x="136" y="190" width="3" height="3"/><rect x="136" y="193" width="3" height="3"/><rect x="133" y="196" width="3" height="3"/><rect x="130" y="199" width="3" height="3"/><rect x="130" y="202" width="3" height="3"/><rect x="136" y="202" width="3" height="3"/>
+              </g>
+
+              
+              
+              
+              <rect class="outline" x="80" y="222" width="14" height="8"/>
+              <rect class="outline" x="152" y="222" width="14" height="8"/>
+
+              <!-- shoulders / arms -->
+              <rect class="outline" x="38" y="156" width="34" height="24"/>
+              <rect class="outline" x="174" y="156" width="34" height="24"/>
+              <rect class="lavender" x="46" y="164" width="26" height="10"/>
+              <rect class="lavender" x="174" y="164" width="26" height="10"/>
+              <g class="arm-l">
+                <rect class="outline" x="28" y="178" width="28" height="72"/>
+                <rect class="lavender" x="36" y="186" width="12" height="52"/>
+                <rect class="cream" x="24" y="242" width="38" height="16"/>
+                <rect class="outline" x="24" y="242" width="38" height="4"/>
+              </g>
+              <g class="arm-r">
+                <rect class="outline" x="190" y="178" width="28" height="72"/>
+                <rect class="lavender" x="198" y="186" width="12" height="52"/>
+                <rect class="cream" x="184" y="242" width="38" height="16"/>
+                <rect class="outline" x="184" y="242" width="38" height="4"/>
+              </g>
+
+              <!-- pelvis -->
+              <rect class="outline" x="76" y="244" width="94" height="26"/>
+              <rect class="lavender-dark" x="84" y="252" width="78" height="12"/>
+              <rect class="outline" x="118" y="252" width="10" height="10"/>
+
+              <!-- short cute legs -->
+              <rect class="outline" x="78" y="270" width="38" height="34"/>
+              <rect class="outline" x="130" y="270" width="38" height="34"/>
+              <rect class="lavender" x="86" y="278" width="22" height="18"/>
+              <rect class="lavender" x="138" y="278" width="22" height="18"/>
+              <rect class="mint-dark" x="86" y="278" width="22" height="8"/>
+              <rect class="mint-dark" x="138" y="278" width="22" height="8"/>
+              <rect class="outline" x="70" y="304" width="50" height="18"/>
+              <rect class="outline" x="130" y="304" width="50" height="18"/>
+              <rect class="cream" x="78" y="304" width="42" height="10"/>
+              <rect class="cream" x="138" y="304" width="42" height="10"/>
+
+              <!-- tiny diagnostic pixels -->
+              <rect class="green pixel-status" x="62" y="150" width="6" height="6"/>
+              <rect class="green pixel-status" x="178" y="150" width="6" height="6"/>
+              <rect class="green pixel-status" x="120" y="240" width="6" height="6"/>
+            </svg>
+            <div class="pixel-scan" aria-hidden="true"></div>
+            <div class="robot-shadow"></div>
+          </div>
+          <div class="telemetry-chip chip-top"><span class="mini-pulse"></span> <span data-i18n="robot.telemetry">LIVE TELEMETRY</span> <b>●</b></div>
+          <div class="telemetry-chip chip-bottom"><span data-i18n="robot.health">HEALTH</span> <strong>98%</strong> <span>↗</span></div>
+          <div class="telemetry-chip chip-vision"><span class="mini-pulse"></span> <span data-i18n="robot.vision">VISION</span> <b style="color:var(--purple);margin-left:8px">◉</b></div>
+          <div class="telemetry-chip chip-acoustic"><span data-i18n="robot.acoustic">ACOUSTIC</span> <strong style="margin-left:8px">48kHz</strong></div>
+          <div class="telemetry-chip chip-torque"><span data-i18n="robot.torque">TORQUE</span> <strong style="color:#6b9c82;margin-left:8px">OK</strong></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span data-i18n-html="ticker">HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i></span>
+        <span data-i18n-html="ticker">HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i></span>
+        <span data-i18n-html="ticker">HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i></span>
+        <span data-i18n-html="ticker">HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i></span>
+      </div>
+    </div>
+
+    <div class="shell">
+      <section id="method" class="reveal">
+        <div class="section-intro">
+          <div class="eyebrow" data-i18n="method.eyebrow">Core Method</div>
+          <h2 data-i18n-html="method.title">Command → Observe → <em>Compare → Diagnose.</em></h2>
+          <p data-i18n="method.desc">Robodiag goes beyond passive fault-code reading. It actively excites the robot, observes the response, compares it against healthy baselines, and produces an evidence-backed diagnosis.</p>
+        </div>
+        <div class="process">
+          <div class="process-card">
+            <div class="num mono">01 / COMMAND</div>
+            <h3 data-i18n="method.command.title">Active Excitation</h3>
+            <p data-i18n="method.command.desc">Run standardized movements and test sequences designed to expose latent faults.</p>
+            <div class="mini mono">stand → squat → walk → joint sweep</div>
+          </div>
+          <div class="process-card">
+            <div class="num mono">02 / OBSERVE</div>
+            <h3 data-i18n="method.observe.title">Multimodal Sensing</h3>
+            <p data-i18n="method.observe.desc">Capture internal telemetry together with external vision, acoustics and vibration.</p>
+            <div class="mini mono">torque · current · motion · sound</div>
+          </div>
+          <div class="process-card">
+            <div class="num mono">03 / COMPARE</div>
+            <h3 data-i18n="method.compare.title">Health Baseline</h3>
+            <p data-i18n="method.compare.desc">Compare a robot with golden units, fleet norms and its own historical behavior.</p>
+            <div class="mini mono">self / fleet / golden unit</div>
+          </div>
+          <div class="process-card">
+            <div class="num mono">04 / DIAGNOSE</div>
+            <h3 data-i18n="method.diagnose.title">Evidence, Not Guesswork</h3>
+            <p data-i18n="method.diagnose.desc">Turn signal deviations into PASS / FAIL, fault localization and probable causes.</p>
+            <div class="mini mono">result · evidence · probable cause</div>
+          </div>
+        </div>
+        <div class="arrow-row mono">ACTIVE EXCITATION <b>→</b> MULTIMODAL DATA <b>→</b> HEALTH MODEL <b>→</b> DIAGNOSIS</div>
+
+        <div class="four-senses">
+          <div class="sense-head">
+            <div class="section-intro">
+              <div class="eyebrow" data-i18n="senses.eyebrow">Four Diagnostic Senses</div>
+              <h2 data-i18n-html="senses.title">望 · 闻 · 问 · 切<br/><em>See. Listen. Ask. Probe.</em></h2>
+              <p data-i18n="senses.desc">A robot rarely tells you what is wrong through a single signal. Robodiag combines four complementary perspectives to understand the whole machine.</p>
+            </div>
+            <div class="sense-kicker mono" data-i18n="senses.kicker">ONE ROBOT · FOUR PERSPECTIVES</div>
+          </div>
+          <div class="sense-grid">
+            <article class="sense-card">
+              <div class="sense-glyph">望</div>
+              <small data-i18n="senses.see.en">SEE</small>
+              <h3 data-i18n="senses.see.title">Observe how it moves.</h3>
+              <p data-i18n="senses.see.desc">Use vision to inspect posture, gait symmetry, alignment and visible assembly abnormalities.</p>
+              <div class="sense-signals mono" data-i18n="senses.see.signals">POSE · GAIT · ALIGNMENT · VISION</div>
+            </article>
+            <article class="sense-card">
+              <div class="sense-glyph">闻</div>
+              <small data-i18n="senses.listen.en">LISTEN</small>
+              <h3 data-i18n="senses.listen.title">Hear what motion reveals.</h3>
+              <p data-i18n="senses.listen.desc">Acoustic and vibration signatures can expose friction, impact and abnormal mechanical behavior.</p>
+              <div class="sense-signals mono" data-i18n="senses.listen.signals">ACOUSTIC · VIBRATION · NVH</div>
+            </article>
+            <article class="sense-card">
+              <div class="sense-glyph">问</div>
+              <small data-i18n="senses.ask.en">ASK</small>
+              <h3 data-i18n="senses.ask.title">Interrogate the robot itself.</h3>
+              <p data-i18n="senses.ask.desc">Read joint telemetry, temperatures, currents, logs, fault memory and test history from inside the robot.</p>
+              <div class="sense-signals mono" data-i18n="senses.ask.signals">TORQUE · CURRENT · TEMP · LOGS</div>
+            </article>
+            <article class="sense-card">
+              <div class="sense-glyph">切</div>
+              <small data-i18n="senses.probe.en">PROBE</small>
+              <h3 data-i18n="senses.probe.title">Actively reveal hidden faults.</h3>
+              <p data-i18n="senses.probe.desc">Command controlled motions and excitation sequences, then measure how the robot responds under test.</p>
+              <div class="sense-signals mono" data-i18n="senses.probe.signals">EXCITATION · RESPONSE · BASELINE</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal">
+        <div class="section-intro">
+          <div class="eyebrow" data-i18n="why.eyebrow">Why Robodiag</div>
+          <h2 data-i18n-html="why.title">Robots are getting smarter.<br/>Testing is <em>still fragmented.</em></h2>
+          <p data-i18n="why.desc">As robots move from prototypes to products, testing must become repeatable, measurable and traceable.</p>
+        </div>
+        <div class="why-wrap">
+          <div class="why-box">
+            <h3 data-i18n="why.today">Today</h3>
+            <div class="list mono">
+              <div><span class="badx">×</span> <span data-i18n="why.bad1">One-off test scripts</span></div>
+              <div><span class="badx">×</span> <span data-i18n="why.bad2">Manual visual checks</span></div>
+              <div><span class="badx">×</span> <span data-i18n="why.bad3">Disconnected signals and tools</span></div>
+              <div><span class="badx">×</span> <span data-i18n="why.bad4">Vendor-specific diagnostics</span></div>
+              <div><span class="badx">×</span> <span data-i18n="why.bad5">No shared health baseline</span></div>
+            </div>
+          </div>
+          <div class="why-box good">
+            <h3 data-i18n="why.with">With Robodiag</h3>
+            <div class="list mono">
+              <div><span class="goodx">✓</span> <span data-i18n="why.good1">Versioned test procedures</span></div>
+              <div><span class="goodx">✓</span> <span data-i18n="why.good2">Active excitation</span></div>
+              <div><span class="goodx">✓</span> <span data-i18n="why.good3">Synchronized multimodal data</span></div>
+              <div><span class="goodx">✓</span> <span data-i18n="why.good4">Baseline comparison &amp; diagnosis</span></div>
+              <div><span class="goodx">✓</span> <span data-i18n="why.good5">Traceable evidence &amp; health record</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="product" class="reveal">
+        <div class="section-intro">
+          <div class="eyebrow" data-i18n="product.eyebrow">Product</div>
+          <h2 data-i18n-html="product.title">One diagnostic workflow.<br/><em>From authoring to execution to insight.</em></h2>
+        </div>
+        <div class="products">
+          <article class="product-card">
+            <div class="num mono">ROBODIAG / STUDIO</div>
+            <h3 data-i18n="product.studio.title">Define how a robot should be tested.</h3>
+            <p data-i18n="product.studio.desc">Create reusable, versioned and auditable robot test procedures.</p>
+            <div class="mini-ui mono">
+              <div class="ui-top"><span>test_sequence.rdiag</span><span>v3.2</span></div>
+              <div class="code-line"><span class="g">- action:</span> squat</div>
+              <div class="code-line">&nbsp;&nbsp;duration: 4s</div>
+              <div class="code-line"><span class="g">- observe:</span></div>
+              <div class="code-line">&nbsp;&nbsp;joint_torque: all</div>
+              <div class="code-line">&nbsp;&nbsp;acoustic: enabled</div>
+              <div class="code-line"><span class="g">- assert:</span> torque_delta &lt; 8%</div>
+            </div>
+          </article>
+
+          <article class="product-card">
+            <div class="num mono">ROBODIAG / STATION</div>
+            <h3 data-i18n="product.station.title">Run diagnostics at the edge.</h3>
+            <p data-i18n="product.station.desc">Execute test procedures beside the robot, even when the cloud does not.</p>
+            <div class="mini-ui mono">
+              <div class="ui-top"><span>STATION-04</span><span style="color:#b9e6a8">ONLINE</span></div>
+              <div class="metric"><span>Robot</span><strong>Humanoid_01</strong></div>
+              <div class="metric"><span>Telemetry</span><strong>Streaming</strong></div>
+              <div class="metric"><span>Vision</span><strong>30 FPS</strong></div>
+              <div class="metric"><span>Acoustic</span><strong>48 kHz</strong></div>
+              <div class="metric"><span>Test Progress</span><strong>74%</strong></div>
+            </div>
+          </article>
+
+          <article class="product-card">
+            <div class="num mono">ROBODIAG / INTELLIGENCE</div>
+            <h3 data-i18n="product.intelligence.title">Turn signals into diagnosis.</h3>
+            <p data-i18n="product.intelligence.desc">Find where the anomaly is, show the evidence, and suggest probable causes.</p>
+            <div class="mini-ui mono">
+              <div class="ui-top"><span>G1-000381</span><span style="color:#ff9a9a">FAIL</span></div>
+              <div class="metric"><span>Left Knee Torque</span><strong style="color:#ff9a9a">+18.4%</strong></div>
+              <div class="metric"><span>Acoustic Anomaly</span><strong style="color:#ffcf8a">Detected</strong></div>
+              <div class="metric"><span>Motion Deviation</span><strong>3.2°</strong></div>
+              <div class="metric"><span>Probable Cause</span><strong>Reducer / Assembly</strong></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <section class="dark">
+      <div class="shell">
+        <div class="section-intro reveal">
+          <div class="eyebrow" data-i18n="architecture.eyebrow">Architecture</div>
+          <h2 data-i18n-html="architecture.title">Built for <em>the production line.</em></h2>
+          <p data-i18n="architecture.desc">Robodiag coordinates the robot, test execution and sensing in one traceable diagnostic workflow.</p>
+        </div>
+        <div class="pipeline reveal">
+          <div class="pipe-node"><small class="mono">01</small><h4 data-i18n="architecture.robot">Robot / DUT</h4></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node"><small class="mono">02</small><h4 data-i18n="architecture.station">Robodiag Station</h4></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node"><small class="mono">03</small><h4 data-i18n="architecture.result">Diagnostic Result</h4></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="shell">
+      <section id="usecases" class="reveal">
+        <div class="section-intro">
+          <div class="eyebrow" data-i18n="use.eyebrow">Use Cases</div>
+          <h2 data-i18n-html="use.title">From manufacturing EOL <em>to field service.</em></h2>
+        </div>
+        <div class="use-grid">
+          <div class="use-card">
+            <div class="use-icon">01</div>
+            <h3 data-i18n="use.eol.title">Manufacturing EOL</h3>
+            <p data-i18n="use.eol.desc">Every robot leaves the line with a standardized, traceable health record.</p>
+          </div>
+          <div class="use-card">
+            <div class="use-icon">02</div>
+            <h3 data-i18n="use.quality.title">Incoming / Outgoing Quality</h3>
+            <p data-i18n="use.quality.desc">Verify modules, assemblies and finished robots using consistent test procedures.</p>
+          </div>
+          <div class="use-card">
+            <div class="use-icon">03</div>
+            <h3 data-i18n="use.service.title">Service &amp; Maintenance</h3>
+            <p data-i18n="use.service.desc">Diagnose robots before replacing parts and reduce unnecessary service effort.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="vision" id="company">
+        <div class="shell reveal">
+          <div class="eyebrow" data-i18n="vision.eyebrow">Our Vision</div>
+          <div class="line"></div>
+          <h2 data-i18n-html="vision.title">The diagnostic infrastructure <em>for every robot.</em></h2>
+          <p data-i18n="vision.desc">As robots scale from prototypes into products, diagnosis becomes infrastructure. Robodiag is building the test and health layer that makes robots manufacturable, serviceable and trustworthy.</p>
+        </div>
+      </section>
+
+      <div class="cta-wrap">
+        <div class="cta reveal">
+          <div>
+            <h2 data-i18n="cta.title">Test your robot with Robodiag.</h2>
+            <p data-i18n="cta.desc">Bring us a robot. We'll help you turn testing into a repeatable diagnostic workflow.</p>
+          </div>
+          <a class="button button-dark" href="mailto:hello@robodiag.ai"><span data-i18n="nav.demo">Request a Demo</span> <span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="shell footer-row">
+      <div data-i18n="footer.copyright">© 2026 Robodiag. All rights reserved.</div>
+      <div class="mono">COMMAND → OBSERVE → COMPARE → DIAGNOSE</div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth anchor scrolling
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href')
+        if (!href || href === '#') return
+        const target = document.querySelector(href)
+        if (!target) return
+        event.preventDefault()
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+
+    // Reveal on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('in-view')
+      })
+    }, { threshold: 0.12 })
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+
+    // Bilingual copy
+    const copy = {
+      en: {
+        "nav.method":"Method","nav.product":"Product","nav.usecases":"Use Cases","nav.company":"Company","nav.demo":"Request a Demo",
+        "hero.eyebrow":"ROBOT DIAGNOSTICS, REIMAGINED",
+        "hero.title":"Know your robot <em>before it fails.</em>",
+        "hero.lede":"Robodiag actively exercises robots, captures internal telemetry and external signals, and turns anomalies into evidence-backed diagnosis — from the factory line to the field.",
+        "hero.how":"See How It Works",
+        "hero.proof":"Active excitation · Multimodal sensing · Evidence-based diagnosis",
+        "robot.telemetry":"LIVE TELEMETRY","robot.faults":"FAULTS","robot.health":"HEALTH","robot.vision":"VISION","robot.acoustic":"ACOUSTIC","robot.torque":"TORQUE",
+        "ticker":"HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i>",
+        "method.eyebrow":"Core Method",
+        "method.title":"Command → Observe → <em>Compare → Diagnose.</em>",
+        "method.desc":"Robodiag goes beyond passive fault-code reading. It actively excites the robot, observes the response, compares it against healthy baselines, and produces an evidence-backed diagnosis.",
+        "method.command.title":"Active Excitation","method.command.desc":"Run standardized movements and test sequences designed to expose latent faults.",
+        "method.observe.title":"Multimodal Sensing","method.observe.desc":"Capture internal telemetry together with external vision, acoustics and vibration.",
+        "method.compare.title":"Health Baseline","method.compare.desc":"Compare a robot with golden units, fleet norms and its own historical behavior.",
+        "method.diagnose.title":"Evidence, Not Guesswork","method.diagnose.desc":"Turn signal deviations into PASS / FAIL, fault localization and probable causes.",
+        "senses.eyebrow":"Four Diagnostic Senses",
+        "senses.title":"望 · 闻 · 问 · 切<br/><em>See. Listen. Ask. Probe.</em>",
+        "senses.desc":"A robot rarely tells you what is wrong through a single signal. Robodiag combines four complementary perspectives to understand the whole machine.",
+        "senses.kicker":"ONE ROBOT · FOUR PERSPECTIVES",
+        "senses.see.en":"SEE","senses.see.title":"Observe how it moves.","senses.see.desc":"Use vision to inspect posture, gait symmetry, alignment and visible assembly abnormalities.","senses.see.signals":"POSE · GAIT · ALIGNMENT · VISION",
+        "senses.listen.en":"LISTEN","senses.listen.title":"Hear what motion reveals.","senses.listen.desc":"Acoustic and vibration signatures can expose friction, impact and abnormal mechanical behavior.","senses.listen.signals":"ACOUSTIC · VIBRATION · NVH",
+        "senses.ask.en":"ASK","senses.ask.title":"Interrogate the robot itself.","senses.ask.desc":"Read joint telemetry, temperatures, currents, logs, fault memory and test history from inside the robot.","senses.ask.signals":"TORQUE · CURRENT · TEMP · LOGS",
+        "senses.probe.en":"PROBE","senses.probe.title":"Actively reveal hidden faults.","senses.probe.desc":"Command controlled motions and excitation sequences, then measure how the robot responds under test.","senses.probe.signals":"EXCITATION · RESPONSE · BASELINE",
+        "why.eyebrow":"Why Robodiag","why.title":"Robots are getting smarter.<br/>Testing is <em>still fragmented.</em>",
+        "why.desc":"As robots move from prototypes to products, testing must become repeatable, measurable and traceable.",
+        "why.today":"Today","why.with":"With Robodiag",
+        "why.bad1":"One-off test scripts","why.bad2":"Manual visual checks","why.bad3":"Disconnected signals and tools","why.bad4":"Vendor-specific diagnostics","why.bad5":"No shared health baseline",
+        "why.good1":"Versioned test procedures","why.good2":"Active excitation","why.good3":"Synchronized multimodal data","why.good4":"Baseline comparison & diagnosis","why.good5":"Traceable evidence & health record",
+        "product.eyebrow":"Product","product.title":"One diagnostic workflow.<br/><em>From authoring to execution to insight.</em>",
+        "product.studio.title":"Define how a robot should be tested.","product.studio.desc":"Create reusable, versioned and auditable robot test procedures.",
+        "product.station.title":"Run diagnostics at the edge.","product.station.desc":"Execute test procedures beside the robot, even when the cloud does not.",
+        "product.intelligence.title":"Turn signals into diagnosis.","product.intelligence.desc":"Find where the anomaly is, show the evidence, and suggest probable causes.",
+        "architecture.eyebrow":"Architecture","architecture.title":"Built for <em>the production line.</em>",
+        "architecture.desc":"Robodiag coordinates the robot, test execution and sensing in one traceable diagnostic workflow.",
+        "architecture.robot":"Robot / DUT","architecture.station":"Robodiag Station","architecture.result":"Diagnostic Result",
+        "use.eyebrow":"Use Cases","use.title":"From manufacturing EOL <em>to field service.</em>",
+        "use.eol.title":"Manufacturing EOL","use.eol.desc":"Every robot leaves the line with a standardized, traceable health record.",
+        "use.quality.title":"Incoming / Outgoing Quality","use.quality.desc":"Verify modules, assemblies and finished robots using consistent test procedures.",
+        "use.service.title":"Service & Maintenance","use.service.desc":"Diagnose robots before replacing parts and reduce unnecessary service effort.",
+        "vision.eyebrow":"Our Vision","vision.title":"The diagnostic infrastructure <em>for every robot.</em>",
+        "vision.desc":"As robots scale from prototypes into products, diagnosis becomes infrastructure. Robodiag is building the test and health layer that makes robots manufacturable, serviceable and trustworthy.",
+        "cta.title":"Test your robot with Robodiag.","cta.desc":"Bring us a robot. We'll help you turn testing into a repeatable diagnostic workflow.",
+        "footer.copyright":"© 2026 Robodiag. All rights reserved."
+      },
+      zh: {
+        "nav.method":"方法","nav.product":"产品","nav.usecases":"应用场景","nav.company":"关于我们","nav.demo":"申请演示",
+        "hero.eyebrow":"重新定义机器人诊断",
+        "hero.title":"在故障发生之前，<em>先看懂你的机器人。</em>",
+        "hero.lede":"Robodiag 主动驱动机器人完成标准化动作，同步采集内部的遥测数据和外部的感知信号，把异常变成有据可依的诊断结论——从生产线一直延伸到现场运维。",
+        "hero.how":"了解工作原理",
+        "hero.proof":"主动激励 · 多模态感知 · 证据驱动的诊断",
+        "robot.telemetry":"实时遥测","robot.faults":"故障","robot.health":"健康度","robot.vision":"视觉检测","robot.acoustic":"声学","robot.torque":"扭矩",
+        "ticker":"健康监测 <i>✦</i> 下线测试 <i>✦</i> 故障检测 <i>✦</i> 根因分析 <i>✦</i> 智能维修 <i>✦</i>",
+        "method.eyebrow":"核心方法",
+        "method.title":"指令 → 观测 → <em>对比 → 诊断。</em>",
+        "method.desc":"Robodiag 不只是读故障码。它会主动激励机器人，观察系统的响应，和健康基线做对比，最后给出有据可依的诊断结论。",
+        "method.command.title":"主动激励","method.command.desc":"运行标准化的动作和测试序列，在受控条件下把潜在故障提前暴露出来。",
+        "method.observe.title":"多模态感知","method.observe.desc":"同步采集机器人内部的遥测数据，以及视觉、声学和振动等外部信号。",
+        "method.compare.title":"健康基线","method.compare.desc":"和黄金样机、机群基线，以及机器人自己的历史数据做对比。",
+        "method.diagnose.title":"用证据说话，不靠猜","method.diagnose.desc":"把信号偏差变成 PASS / FAIL 判定、故障定位和可能原因。",
+        "senses.eyebrow":"机器人的望闻问切",
+        "senses.title":"望 · 闻 · 问 · 切<br/><em>看见、听见、询问、探测。</em>",
+        "senses.desc":"机器人很少会只凭一个信号就告诉你哪里出了问题。Robodiag 从四个互补的视角，读懂这台机器的整体状态。",
+        "senses.kicker":"一台机器人 · 四种诊断视角",
+        "senses.see.en":"望 / SEE","senses.see.title":"看它怎么动。","senses.see.desc":"用视觉观察姿态、步态对称性、装配对齐，以及肉眼可见的装配异常。","senses.see.signals":"姿态 · 步态 · 对齐 · 视觉",
+        "senses.listen.en":"闻 / LISTEN","senses.listen.title":"听出运动里的异常。","senses.listen.desc":"从声音和振动的特征里，发现摩擦、冲击等异常机械行为。","senses.listen.signals":"声学 · 振动 · NVH",
+        "senses.ask.en":"问 / ASK","senses.ask.title":"直接去问机器人自己。","senses.ask.desc":"读取关节遥测、温度、电流、日志、故障记忆，以及历史测试记录。","senses.ask.signals":"扭矩 · 电流 · 温度 · 日志",
+        "senses.probe.en":"切 / PROBE","senses.probe.title":"主动把隐藏的问题激发出来。","senses.probe.desc":"命令机器人执行受控动作与激励序列，再测量它在测试中的真实响应。","senses.probe.signals":"主动激励 · 响应 · 健康基线",
+        "why.eyebrow":"为什么是 Robodiag","why.title":"机器人越来越聪明，<br/>测试却还<em>很零散。</em>",
+        "why.desc":"当机器人从原型走向量产，测试也必须变得可重复、可量化、可追溯。",
+        "why.today":"现在","why.with":"用了 Robodiag",
+        "why.bad1":"一次性的测试脚本","why.bad2":"靠人眼检查","why.bad3":"数据与工具彼此割裂","why.bad4":"各家厂商封闭的诊断方式","why.bad5":"缺少统一健康基线",
+        "why.good1":"可版本化的测试流程","why.good2":"主动激励","why.good3":"同步的多模态数据","why.good4":"基线对比与自动诊断","why.good5":"可追溯的证据与健康档案",
+        "product.eyebrow":"产品","product.title":"一套诊断工作流。<br/><em>从编写、执行到洞察。</em>",
+        "product.studio.title":"决定一台机器人该怎么测。","product.studio.desc":"编写可复用、可版本、可审计的测试流程。",
+        "product.station.title":"在机器人身边，就地完成诊断。","product.station.desc":"在机器人旁边就能执行测试流程，没有云端也能跑。",
+        "product.intelligence.title":"把信号变成诊断。","product.intelligence.desc":"定位异常在哪、给出证据，并列出可能的故障原因。",
+        "architecture.eyebrow":"架构","architecture.title":"为<em>生产线</em>而生。",
+        "architecture.desc":"Robodiag 把机器人、测试执行和多模态感知串成一条可追溯的诊断工作流。",
+        "architecture.robot":"机器人 / DUT","architecture.station":"Robodiag Station","architecture.result":"诊断结果",
+        "use.eyebrow":"应用场景","use.title":"从出厂检测，<em>延伸到现场服务。</em>",
+        "use.eol.title":"出厂 / 下线测试","use.eol.desc":"让每一台下线机器人都拥有标准化、可追溯的健康记录。",
+        "use.quality.title":"来料 / 出厂质量","use.quality.desc":"用统一的测试流程，验证模块、装配件和整机。",
+        "use.service.title":"售后与维修","use.service.desc":"换件之前先诊断，减少无效维修和反复试错。",
+        "vision.eyebrow":"我们的愿景","vision.title":"成为<em>每一台机器人的诊断基础设施。</em>",
+        "vision.desc":"当机器人从原型走向规模化产品，诊断就会成为基础设施。Robodiag 正在搭建这一层，让机器人更好造、更好维护，也更值得信赖。",
+        "cta.title":"把你的机器人交给 Robodiag 测一测。","cta.desc":"带一台机器人来，我们帮你把测试变成一套可以反复执行的诊断流程。",
+        "footer.copyright":"© 2026 Robodiag. 保留所有权利。"
+      }
+    }
+
+    const langToggle = document.getElementById('langToggle')
+    const themeToggle = document.getElementById('themeToggle')
+
+    function brandifyRobodiag(){
+      const filter = { acceptNode: (node) => {
+        const p = node.parentNode
+        if (p && p.nodeName && /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(p.nodeName)) return NodeFilter.FILTER_REJECT
+        return NodeFilter.FILTER_ACCEPT
+      } }
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, filter)
+      const hits = []
+      while (walker.nextNode()) {
+        if (walker.currentNode.nodeValue.indexOf('Robodiag') !== -1) hits.push(walker.currentNode)
+      }
+      hits.forEach(node => {
+        const parent = node.parentNode
+        if (parent && parent.classList && parent.classList.contains('brand-word')) return
+        const frag = document.createDocumentFragment()
+        node.nodeValue.split('Robodiag').forEach((part, i, arr) => {
+          if (part) frag.appendChild(document.createTextNode(part))
+          if (i < arr.length - 1) {
+            const span = document.createElement('span')
+            span.className = 'brand-word'
+            span.textContent = 'Robodiag'
+            frag.appendChild(span)
+          }
+        })
+        parent.replaceChild(frag, node)
+      })
+    }
+
+    function applyLanguage(lang){
+      const dict = copy[lang] || copy.en
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n
+        if (dict[key] !== undefined) el.textContent = dict[key]
+      })
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.dataset.i18nHtml
+        if (dict[key] !== undefined) el.innerHTML = dict[key]
+      })
+      langToggle.querySelector('.lang-label').textContent = lang === 'zh' ? 'EN' : '中文'
+      langToggle.setAttribute('aria-label', lang === 'zh' ? 'Switch to English' : '切换到中文')
+      document.title = lang === 'zh'
+        ? 'Robodiag — 在故障发生之前，先看懂你的机器人。'
+        : 'Robodiag — Know your robot before it fails.'
+      localStorage.setItem('robodiag-lang', lang)
+      brandifyRobodiag()
+    }
+
+    function applyTheme(theme){
+      document.documentElement.dataset.theme = theme
+      const icon = themeToggle.querySelector('.theme-icon')
+      icon.textContent = theme === 'dark' ? '☀' : '☾'
+      themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')
+      localStorage.setItem('robodiag-theme', theme)
+    }
+
+    const savedLang = localStorage.getItem('robodiag-lang') || 'en'
+    const savedTheme = localStorage.getItem('robodiag-theme')
+    const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    applyLanguage(savedLang)
+    applyTheme(savedTheme || (systemDark ? 'dark' : 'light'))
+
+    langToggle.addEventListener('click', () => {
+      const next = document.documentElement.lang === 'zh-CN' ? 'en' : 'zh'
+      applyLanguage(next)
+    })
+
+    themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+      applyTheme(next)
+    })
+  </script>
+</body>
+</html>
