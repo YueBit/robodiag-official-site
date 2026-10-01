@@ -107,7 +107,7 @@
     }
     .utility-switch:hover{transform:translate(-2px,-2px)}
     .theme-icon{font-size:14px;line-height:1}
-    .lang-icon{display:none;width:14px;height:14px;flex:none}
+    .lang-short{display:none;line-height:1}
     html[data-theme="dark"] .button-dark{color:#211c25}
     html[data-theme="dark"] .button-light{background:var(--card);color:var(--ink)}
     html[data-theme="dark"] .telemetry-chip{background:#221e27;box-shadow:4px 4px 0 #453650;color:var(--ink)}
@@ -413,7 +413,7 @@
       .brand{font-size:17px;gap:8px}
       .brand-mark{width:28px;height:28px}
       .utility-switch{min-width:36px;height:32px;padding:0 8px}
-      .lang-icon{display:block}
+      .lang-short{display:block}
       .lang-label{display:none}
       .mobile-nav{left:12px;right:12px}
 
@@ -490,8 +490,8 @@
     </nav>
     <div class="header-actions">
       <button class="utility-switch" id="langToggle" type="button" aria-label="Switch language">
-        <svg class="lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         <span class="lang-label">中文</span>
+        <span class="lang-short" aria-hidden="true">中</span>
       </button>
       <button class="utility-switch" id="themeToggle" type="button" aria-label="Switch color theme">
         <span class="theme-icon">☾</span>
@@ -1054,6 +1054,7 @@
         if (dict[key] !== undefined) el.innerHTML = dict[key]
       })
       langToggle.querySelector('.lang-label').textContent = lang === 'zh' ? 'EN' : '中文'
+      langToggle.querySelector('.lang-short').textContent = lang === 'zh' ? 'EN' : '中'
       langToggle.setAttribute('aria-label', lang === 'zh' ? 'Switch to English' : '切换到中文')
       document.title = lang === 'zh'
         ? 'Robodiag — 在故障发生之前，先看懂你的机器人。'
