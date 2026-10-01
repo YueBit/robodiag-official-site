@@ -80,7 +80,7 @@
     /* ── Header ── */
     .site-header{
       height:76px;display:flex;align-items:center;justify-content:space-between;
-      max-width:1180px;margin:auto;padding:0 28px;position:relative;z-index:20;
+      max-width:1180px;margin:auto;padding:0 28px;position:sticky;top:0;z-index:50;
       background:var(--header-bg);backdrop-filter:blur(14px);
       -webkit-backdrop-filter:blur(14px);
     }
@@ -106,7 +106,11 @@
       transition:transform .16s,background .2s,color .2s,border-color .2s;
     }
     .utility-switch:hover{transform:translate(-2px,-2px)}
-    .theme-icon{font-size:14px;line-height:1}
+    .theme-icon{font-size:14px;line-height:1;display:inline-flex;align-items:center}
+    .ic-moon{line-height:1}
+    .ic-sun{display:none;width:14px;height:14px}
+    html[data-theme="dark"] .ic-moon{display:none}
+    html[data-theme="dark"] .ic-sun{display:block}
     .lang-short{display:none;line-height:1}
     html[data-theme="dark"] .button-dark{color:#211c25}
     html[data-theme="dark"] .button-light{background:var(--card);color:var(--ink)}
@@ -378,7 +382,6 @@
     .reveal.in-view{opacity:1;transform:translateY(0)}
 
     @media (max-width: 900px){
-      .site-header{position:sticky;top:0;z-index:50}
       .nav{display:none}
       .nav-cta{display:none}
       .header-actions{margin-left:auto}
@@ -494,7 +497,7 @@
         <span class="lang-short" aria-hidden="true">中</span>
       </button>
       <button class="utility-switch" id="themeToggle" type="button" aria-label="Switch color theme">
-        <span class="theme-icon">☾</span>
+        <span class="theme-icon" aria-hidden="true"><span class="ic-moon">☾</span><svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
       </button>
       <button class="utility-switch mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open menu" aria-expanded="false">
         <span aria-hidden="true">☰</span>
@@ -1065,8 +1068,6 @@
 
     function applyTheme(theme){
       document.documentElement.dataset.theme = theme
-      const icon = themeToggle.querySelector('.theme-icon')
-      icon.textContent = theme === 'dark' ? '☀' : '☾'
       themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')
       localStorage.setItem('robodiag-theme', theme)
     }
