@@ -320,6 +320,7 @@
       font-size:12.5px;line-height:1.85;color:color-mix(in srgb,var(--ink) 66%,transparent);
     }
     .sense-origin em{font-style:normal;font-weight:800;color:var(--purple)}
+    html[lang="zh-CN"] .sense-origin{display:none}
     @media(max-width:640px){.sense-origin{font-size:12px}}
     html[data-theme="dark"] .four-senses{background:#1d1921}
     html[data-theme="dark"] .process-card:nth-child(4){background:#3f3448}
@@ -1053,7 +1054,6 @@
         "senses.title":"望 · 闻 · 问 · 切",
         "senses.desc":"“观测”不是只读一个信号。Robodiag 从视觉、声音、内部遥测和物理响应四个方向采集证据，再用于后续的基线对比与诊断。",
         "senses.kicker":"由外到内 · 四类证据",
-        "senses.origin":"名字来自<em>望闻问切</em>——中国古代医学沿用两千多年的四种诊断方法：望（看气色形态）、闻（听声音、嗅气味）、问（询问症状）、切（按脉触诊）。Robodiag 沿用同一套由外到内的顺序：先看它怎么动，再听它怎么响，然后问它报告了什么，最后测它的物理响应。",
         "senses.see.en":"望 / SEE","senses.see.title":"看它怎么动。","senses.see.desc":"用视觉观察姿态、步态对称性、装配对齐，以及肉眼可见的装配异常。","senses.see.signals":"姿态 · 步态 · 对齐 · 视觉",
         "senses.listen.en":"闻 / LISTEN","senses.listen.title":"听出运动里的异常。","senses.listen.desc":"从声音和振动的特征里，发现摩擦、冲击等异常机械行为。","senses.listen.signals":"声学 · 振动 · NVH",
         "senses.ask.en":"问 / ASK","senses.ask.title":"读取机器人自己报告的信息。","senses.ask.desc":"读取关节遥测、温度、电流、日志、故障记忆，以及历史测试记录。","senses.ask.signals":"扭矩 · 电流 · 温度 · 日志",
