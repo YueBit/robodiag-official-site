@@ -402,6 +402,11 @@
     .cta h2{font-size:clamp(30px,4vw,48px);margin:0 0 8px;letter-spacing:-.04em}
     .cta p{margin:0;color:#8b848f}
     .cta-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .cta > div:first-child{min-width:0}
+    @media (min-width:1160px){                /* wide enough to sit beside the button */
+      .cta-actions{flex:0 0 auto;flex-wrap:nowrap}
+      .cta-actions > *{flex:0 0 auto}
+    }
     html[lang="zh-CN"] .wechat-id.cta-wechat{
       display:inline-flex;align-items:center;gap:9px;padding:14px 18px;
       border:1px solid var(--line);background:transparent;color:var(--ink);
@@ -451,6 +456,7 @@
       .pipeline{grid-template-columns:1fr}
       .pipe-arrow{transform:rotate(90deg)}
       .cta{flex-direction:column;align-items:flex-start}
+      .cta-actions{flex-wrap:wrap}
       section{padding:80px 0}
       .vision{padding:96px 0}
     }
