@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service." />
   <title>Robodiag — Know your robot before it fails.</title>
+  <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     @font-face{font-family:Comfortaa;src:url('Comfortaa.ttf') format('truetype');font-weight:100 900;font-style:normal}
+    @font-face{font-family:Inter;src:url('fonts/inter-latin-wght-normal.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
 
     /* The head script resolves the language before paint, but the dictionary runs at the
        end of <body>. Keep the English source copy off screen until it is applied; the
@@ -61,7 +63,7 @@
       margin:0;
       background:var(--paper);
       color:var(--ink);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
       line-height:1.6;
       overflow-x:hidden;
     }
