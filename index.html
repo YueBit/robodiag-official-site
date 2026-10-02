@@ -100,6 +100,22 @@
     .nav-cta{font-size:12px;font-weight:800;border-bottom:2px solid var(--ink);padding-bottom:3px}
     .nav-cta span{font-size:17px;margin-left:7px}
 
+    /* ── Founder WeChat (rendered only in the Chinese UI) ── */
+    .wechat-id{display:none}
+    html[lang="zh-CN"] .wechat-id.desktop{
+      display:inline-flex;align-items:center;gap:9px;height:34px;padding:0 12px;
+      border:1px solid var(--line);background:var(--card);color:var(--ink);
+      font:inherit;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap;
+      box-shadow:3px 3px 0 color-mix(in srgb,var(--mint) 72%,transparent);
+      transition:transform .16s,background .2s,color .2s,border-color .2s;
+    }
+    html[lang="zh-CN"] .wechat-id.desktop:hover{transform:translate(-2px,-2px)}
+    .wechat-id .wx-label{color:var(--muted);font-weight:800}
+    .wechat-id .wx-value{font-weight:900;color:var(--purple)}
+    .wechat-id .wx-copied{display:none;color:var(--purple);font-weight:900}
+    .wechat-id.copied .wx-copied{display:inline}
+    .wechat-id.copied .wx-label{display:none}
+
 
     .header-actions{display:flex;align-items:center;gap:10px}
     .header-actions .mobile-menu-toggle{display:none}
@@ -398,6 +414,13 @@
       .nav{display:none}
       .nav-cta{display:none}
       .header-actions{margin-left:auto}
+      html[lang="zh-CN"] .wechat-id.desktop{display:none}
+      html[lang="zh-CN"] .wechat-id.mobile{
+        display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+        padding:12px 10px;border-top:0;border-bottom:0;background:transparent;box-shadow:none;
+        font:inherit;font-size:12px;font-weight:800;color:var(--ink);text-align:left;cursor:pointer;
+      }
+      html[lang="zh-CN"] .wechat-id.mobile:hover{color:var(--purple)}
       .header-actions .mobile-menu-toggle{display:inline-flex}
       .mobile-nav{
         position:absolute;left:18px;right:18px;top:calc(100% + 8px);z-index:60;
@@ -538,6 +561,9 @@
         <span aria-hidden="true">☰</span>
       </button>
       <a class="nav-cta" href="mailto:never84@icloud.com?subject=Robodiag%20Demo%20Request"><span data-i18n="nav.demo">Request a Demo</span> <span>↗</span></a>
+      <button class="wechat-id desktop" type="button" data-wechat="never84" title="点击复制微信号" aria-label="复制创始人微信 ID：never84">
+        <span class="wx-label">创始人微信ID</span><span class="wx-value mono">never84</span><span class="wx-copied">已复制 ✓</span>
+      </button>
     </div>
     <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
       <a href="#method"><span data-i18n="nav.method">Method</span><span>↓</span></a>
@@ -546,6 +572,9 @@
       <a href="#company"><span data-i18n="nav.company">Company</span><span>↓</span></a>
       <a href="https://github.com/YueBit/robodiag-harness" target="_blank" rel="noopener noreferrer"><span>GitHub</span><span>↗</span></a>
       <a href="mailto:never84@icloud.com?subject=Robodiag%20Demo%20Request"><span data-i18n="nav.demo">Request a Demo</span><span>↗</span></a>
+      <button class="wechat-id mobile" type="button" data-wechat="never84" title="点击复制微信号" aria-label="复制创始人微信 ID：never84">
+        <span class="wx-label">创始人微信ID</span><span class="wx-value mono">never84</span><span class="wx-copied">已复制 ✓</span>
+      </button>
     </nav>
   </header>
 
@@ -1150,6 +1179,20 @@
     langToggle.addEventListener('click', () => {
       const next = document.documentElement.lang === 'zh-CN' ? 'en' : 'zh'
       applyLanguage(next, true)
+    })
+
+    // Founder WeChat ID: visible only in the Chinese UI; a click copies the ID.
+    document.querySelectorAll('.wechat-id').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(btn.dataset.wechat || '')
+        } catch (error) {
+          return // clipboard unavailable (insecure context) — the ID stays readable
+        }
+        btn.classList.add('copied')
+        clearTimeout(btn.__wxTimer)
+        btn.__wxTimer = setTimeout(() => btn.classList.remove('copied'), 1800)
+      })
     })
 
     themeToggle.addEventListener('click', () => {
