@@ -8,6 +8,12 @@
   <style>
     @font-face{font-family:Comfortaa;src:url('Comfortaa.ttf') format('truetype');font-weight:100 900;font-style:normal}
 
+    /* The head script resolves the language before paint, but the dictionary runs at the
+       end of <body>. Keep the English source copy off screen until it is applied; the
+       animation is the fail-safe that reveals the page if the script never runs. */
+    html[data-lang-pending] body{visibility:hidden;animation:langFailsafe 0s linear 1.2s forwards}
+    @keyframes langFailsafe{to{visibility:visible}}
+
     :root{
       --ink:#25222b;
       --muted:#77727b;
@@ -476,6 +482,29 @@
       .hero-actions .text-link{padding:8px 0}
     }
   </style>
+
+  <script>
+    // Resolve theme and language before first paint so the wrong one never flashes.
+    (function () {
+      var root = document.documentElement
+      function saved(key) { try { return localStorage.getItem(key) } catch (e) { return null } }
+
+      // Bright by default, whatever the OS prefers; an explicit saved choice still wins.
+      var theme = saved('robodiag-theme')
+      root.dataset.theme = theme === 'dark' || theme === 'light' ? theme : 'light'
+
+      // Chinese first-visit default when the browser's primary language is Chinese.
+      var lang = saved('robodiag-lang')
+      if (lang !== 'zh' && lang !== 'en') {
+        var primary = (navigator.languages && navigator.languages[0]) || navigator.language || ''
+        lang = /^zh/i.test(primary) ? 'zh' : 'en'
+      }
+      root.dataset.lang = lang
+      root.lang = lang === 'zh' ? 'zh-CN' : 'en'
+      if (lang === 'zh') root.dataset.langPending = ''
+      window.__robodiagLang = lang
+    })()
+  </script>
 </head>
 <body>
   <div class="pixel-grid" aria-hidden="true"></div>
@@ -1045,7 +1074,7 @@
       })
     }
 
-    function applyLanguage(lang){
+    function applyLanguage(lang, persist){
       const dict = copy[lang] || copy.en
       document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
       document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1062,21 +1091,21 @@
       document.title = lang === 'zh'
         ? 'Robodiag — 在故障发生之前，先看懂你的机器人。'
         : 'Robodiag — Know your robot before it fails.'
-      localStorage.setItem('robodiag-lang', lang)
+      if (persist) localStorage.setItem('robodiag-lang', lang)
       brandifyRobodiag()
     }
 
-    function applyTheme(theme){
+    function applyTheme(theme, persist){
       document.documentElement.dataset.theme = theme
       themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')
-      localStorage.setItem('robodiag-theme', theme)
+      if (persist) localStorage.setItem('robodiag-theme', theme)
     }
 
-    const savedLang = localStorage.getItem('robodiag-lang') || 'en'
-    const savedTheme = localStorage.getItem('robodiag-theme')
-    const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-    applyLanguage(savedLang)
-    applyTheme(savedTheme || (systemDark ? 'dark' : 'light'))
+    // Resolved by the head script. Detection is deliberately not persisted, so a later
+    // change to the browser language is picked up, while an explicit toggle is remembered.
+    applyLanguage(window.__robodiagLang || document.documentElement.dataset.lang || 'en', false)
+    applyTheme(document.documentElement.dataset.theme || 'light', false)
+    delete document.documentElement.dataset.langPending
 
     const mobileQuery = window.matchMedia('(max-width: 900px)')
 
@@ -1102,12 +1131,12 @@
 
     langToggle.addEventListener('click', () => {
       const next = document.documentElement.lang === 'zh-CN' ? 'en' : 'zh'
-      applyLanguage(next)
+      applyLanguage(next, true)
     })
 
     themeToggle.addEventListener('click', () => {
       const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
-      applyTheme(next)
+      applyTheme(next, true)
     })
   </script>
 </body>
