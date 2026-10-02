@@ -96,7 +96,7 @@
 
 
     .header-actions{display:flex;align-items:center;gap:10px}
-    .mobile-menu-toggle{display:none}
+    .header-actions .mobile-menu-toggle{display:none}
     .mobile-nav{display:none}
     .utility-switch{
       height:34px;min-width:44px;padding:0 10px;border:1px solid var(--line);
@@ -148,7 +148,7 @@
     .eyebrow{font-size:10px;letter-spacing:.2em;font-weight:900;color:var(--purple);margin-bottom:19px}
     .status-dot{display:inline-block;width:8px;height:8px;background:#6ba286;border-radius:50%;margin-right:9px;box-shadow:0 0 0 4px #dcece5}
     .hero h1{
-      font-size:clamp(48px,6.2vw,86px);line-height:1.03;letter-spacing:-.09em;margin:0 0 26px;font-weight:800;
+      font-size:clamp(48px,6.2vw,86px);line-height:1.03;letter-spacing:-.045em;word-spacing:.08em;margin:0 0 26px;font-weight:800;
     }
     .hero h1 em{font-style:normal;color:var(--purple);position:relative}
     .hero h1 em:after{
@@ -385,7 +385,7 @@
       .nav{display:none}
       .nav-cta{display:none}
       .header-actions{margin-left:auto}
-      .mobile-menu-toggle{display:inline-flex}
+      .header-actions .mobile-menu-toggle{display:inline-flex}
       .mobile-nav{
         position:absolute;left:18px;right:18px;top:calc(100% + 8px);z-index:60;
         padding:10px;border:1px solid var(--line);background:var(--card);
@@ -1078,7 +1078,11 @@
     applyLanguage(savedLang)
     applyTheme(savedTheme || (systemDark ? 'dark' : 'light'))
 
+    const mobileQuery = window.matchMedia('(max-width: 900px)')
+
     mobileMenuToggle.addEventListener('click', () => {
+      // Hidden above 900px — ignore stray clicks on the collapsed button.
+      if (!mobileQuery.matches) return
       setMobileMenu(!mobileNav.classList.contains('open'))
     })
 
@@ -1092,8 +1096,8 @@
       setMobileMenu(false)
     })
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 900) setMobileMenu(false)
+    mobileQuery.addEventListener('change', (event) => {
+      if (!event.matches) setMobileMenu(false)
     })
 
     langToggle.addEventListener('click', () => {
