@@ -401,6 +401,14 @@
     }
     .cta h2{font-size:clamp(30px,4vw,48px);margin:0 0 8px;letter-spacing:-.04em}
     .cta p{margin:0;color:#8b848f}
+    .cta-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    html[lang="zh-CN"] .wechat-id.cta-wechat{
+      display:inline-flex;align-items:center;gap:9px;padding:14px 18px;
+      border:1px solid var(--line);background:transparent;color:var(--ink);
+      font:inherit;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;
+      transition:transform .18s,color .2s;
+    }
+    html[lang="zh-CN"] .wechat-id.cta-wechat:hover{transform:translate(-2px,-2px);color:var(--purple)}
 
     footer{border-top:1px solid var(--line);padding:28px 0 44px;color:#8b848f;font-size:12px}
     .footer-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
@@ -951,7 +959,12 @@
             <h2 data-i18n="cta.title">Test your robot with Robodiag.</h2>
             <p data-i18n="cta.desc">Bring us a robot. We'll help turn your testing into a repeatable, traceable diagnostic workflow.</p>
           </div>
-          <a class="button button-dark" href="mailto:never84@icloud.com?subject=Robodiag%20Demo%20Request"><span data-i18n="nav.demo">Request a Demo</span> <span>→</span></a>
+          <div class="cta-actions">
+            <a class="button button-dark" href="mailto:never84@icloud.com?subject=Robodiag%20Demo%20Request"><span data-i18n="nav.demo">Request a Demo</span> <span>→</span></a>
+            <button class="wechat-id cta-wechat" type="button" data-wechat="never84" title="点击复制微信号" aria-label="复制创始人微信 ID：never84">
+              <span class="wx-label">创始人微信ID</span><span class="wx-value mono">never84</span><span class="wx-copied">已复制 ✓</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
