@@ -289,6 +289,69 @@
     .process-card p{color:#5f5963;font-size:13px;margin:0;line-height:1.7}
     .process-card .mini{margin-top:22px;font-size:11px;color:#6e6572}
 
+    /* ── Animated marks for the four method steps ──
+       Each card's mark runs its own loop, offset down the row so the four read in
+       reading order. Every animation lives in @keyframes only, so the static state
+       (reduced motion, JS off, or a browser mid-teardown) is the finished icon. */
+    .process-card .num{display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .proc-icon{flex:none;width:34px;height:34px;color:var(--purple-deep)}
+    .proc-icon svg{display:block;width:100%;height:100%}
+    .process-card:nth-child(2){--stagger:.42s}
+    .process-card:nth-child(3){--stagger:.84s}
+    .process-card:nth-child(4){--stagger:1.26s}
+
+    /* a line drawing itself, holding, then clearing */
+    .p-draw{animation:pDraw 2.9s cubic-bezier(.45,.05,.25,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pDraw{
+      0%{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);opacity:0}
+      6%{opacity:1}
+      30%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      88%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
+
+    /* 01 command — the drive signal reaching the unit */
+    .p-cmd .p-draw{--len:40.2px}
+    .p-cmd .p-node{animation:pNode 2.9s ease-in-out infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pNode{0%,28%{opacity:1}37%{opacity:.45}48%,100%{opacity:1}}
+
+    /* 02 observe — evidence arriving from outside */
+    .p-obs .p-wave{transform-box:fill-box;transform-origin:center;
+      animation:pSonar 2.9s cubic-bezier(.16,.84,.44,1) infinite;
+      animation-delay:calc(var(--stagger,0s) + var(--w,0s))}
+    .p-obs .w2{--w:.95s}
+    .p-obs .w3{--w:1.9s}
+    @keyframes pSonar{0%{transform:scale(.16);opacity:0}8%{opacity:.9}64%{transform:scale(1);opacity:0}100%{transform:scale(1);opacity:0}}
+    .p-obs .p-dot{animation:pBreathe 2.9s ease-in-out infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pBreathe{0%,100%{opacity:1}50%{opacity:.5}}
+
+    /* 03 compare — the gap the baseline makes visible */
+    .p-cmp .p-draw{--len:24.09px}
+    .p-cmp .p-delta{transform-box:fill-box;transform-origin:bottom;
+      animation:pDelta 2.9s cubic-bezier(.2,.8,.3,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pDelta{
+      0%,15%{transform:scaleY(0);opacity:0}
+      26%{transform:scaleY(1);opacity:1}
+      76%{transform:scaleY(1);opacity:1}
+      88%,100%{transform:scaleY(1);opacity:0}}
+
+    /* 04 diagnose — the verdict */
+    .p-dia .p-tick{--len:13.46px}
+    .p-dia .p-tick{animation:pDrawFast 2.9s cubic-bezier(.45,.05,.25,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pDrawFast{
+      0%{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);opacity:0}
+      5%{opacity:1}
+      22%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      88%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
+    .p-dia .p-ring{animation:pRing 2.9s ease-in-out infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pRing{0%,14%{opacity:.42}26%{opacity:.9}50%,100%{opacity:.42}}
+
+    /* Specificity note: two-class selectors declare these animations, so the
+       override needs to out-rank them - a plain ".proc-icon svg *" (0,1,1) loses. */
+    @media (prefers-reduced-motion:reduce){
+      .process-card .proc-icon svg *{animation:none}
+    }
+
 
     /* ── 望聞問切 / Four diagnostic senses ── */
     .four-senses{
@@ -759,25 +822,25 @@
         </div>
         <div class="process">
           <div class="process-card">
-            <div class="num mono">01 / COMMAND</div>
+            <div class="num mono"><span>01 / COMMAND</span><span class="proc-icon" aria-hidden="true"><svg class="p-cmd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="p-draw" d="M1.4 15.3H4.5V8.7H8.7V15.3H12.9V8.7H15.2V15.3"/><rect class="p-node" x="16.6" y="7.1" width="5.9" height="9.8" rx="1.9"/></svg></span></div>
             <h3 data-i18n="method.command.title">Active Excitation</h3>
             <p data-i18n="method.command.desc">Run standardized movements and test sequences designed to expose latent faults.</p>
             <div class="mini mono">stand → squat → walk → joint sweep</div>
           </div>
           <div class="process-card">
-            <div class="num mono">02 / OBSERVE</div>
+            <div class="num mono"><span>02 / OBSERVE</span><span class="proc-icon" aria-hidden="true"><svg class="p-obs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle class="p-wave w1" cx="12" cy="12" r="9.3" vector-effect="non-scaling-stroke"/><circle class="p-wave w2" cx="12" cy="12" r="9.3" vector-effect="non-scaling-stroke"/><circle class="p-wave w3" cx="12" cy="12" r="9.3" vector-effect="non-scaling-stroke"/><circle class="p-dot" cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></span></div>
             <h3 data-i18n="method.observe.title">Multimodal Sensing</h3>
             <p data-i18n="method.observe.desc">Capture internal telemetry together with external vision, acoustics and vibration.</p>
             <div class="mini mono">torque · current · motion · sound</div>
           </div>
           <div class="process-card">
-            <div class="num mono">03 / COMPARE</div>
+            <div class="num mono"><span>03 / COMPARE</span><span class="proc-icon" aria-hidden="true"><svg class="p-cmp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="p-base" d="M1.6 15.6H22.4" stroke-dasharray="2.4 2.6" opacity=".45"/><path class="p-draw" d="M1.6 15.6H7C8.9 15.6 9.4 9.5 12 9.5H22.4"/><line class="p-delta" x1="12" y1="15.6" x2="12" y2="9.5" vector-effect="non-scaling-stroke"/></svg></span></div>
             <h3 data-i18n="method.compare.title">Health Baseline</h3>
             <p data-i18n="method.compare.desc">Compare a robot with golden units, fleet norms and its own historical behavior.</p>
             <div class="mini mono">self / fleet / golden unit</div>
           </div>
           <div class="process-card">
-            <div class="num mono">04 / DIAGNOSE</div>
+            <div class="num mono"><span>04 / DIAGNOSE</span><span class="proc-icon" aria-hidden="true"><svg class="p-dia" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle class="p-ring" cx="12" cy="12" r="9.3"/><path class="p-tick" d="M7.6 12.3L10.8 15.5L16.6 8.7"/></svg></span></div>
             <h3 data-i18n="method.diagnose.title">Evidence, Not Guesswork</h3>
             <p data-i18n="method.diagnose.desc">Turn signal deviations into PASS / FAIL, fault localization and probable causes.</p>
             <div class="mini mono">result · evidence · probable cause</div>
