@@ -309,10 +309,14 @@
       88%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
       100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
 
-    /* 01 command — the drive signal reaching the unit */
-    .p-cmd .p-draw{--len:40.2px}
-    .p-cmd .p-node{animation:pNode 2.9s ease-in-out infinite;animation-delay:var(--stagger,0s)}
-    @keyframes pNode{0%,28%{opacity:1}37%{opacity:.45}48%,100%{opacity:1}}
+    /* 01 command — a joint driven through its commanded range. The pivot (6.4,17.6) is
+       the bottom-left corner of the arm group's box, so fill-box + 0%/100% is the origin. */
+    .p-cmd .p-arm{transform-box:fill-box;transform-origin:0% 100%;
+      animation:pSweep 2.9s cubic-bezier(.5,.06,.32,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes pSweep{
+      0%,8%{transform:rotate(-13deg)}
+      34%,50%{transform:rotate(13deg)}
+      76%,100%{transform:rotate(-13deg)}}
 
     /* 02 observe — evidence arriving from outside */
     .p-obs .p-wave{transform-box:fill-box;transform-origin:center;
@@ -346,10 +350,13 @@
     .p-dia .p-ring{animation:pRing 2.9s ease-in-out infinite;animation-delay:var(--stagger,0s)}
     @keyframes pRing{0%,14%{opacity:.42}26%{opacity:.9}50%,100%{opacity:.42}}
 
-    /* Specificity note: two-class selectors declare these animations, so the
-       override needs to out-rank them - a plain ".proc-icon svg *" (0,1,1) loses. */
+    /* prefers-reduced-motion must beat every rule that declares one of these animations,
+       and those vary in specificity - note that a universal selector scores zero, so
+       ".sense-card .sense-icon *" only ties with a two-class rule and loses on source
+       order. !important is the order-independent way to make the override stick. */
     @media (prefers-reduced-motion:reduce){
-      .process-card .proc-icon svg *{animation:none}
+      .process-card .proc-icon svg *,
+      .sense-card .sense-icon *{animation:none!important}
     }
 
 
@@ -387,6 +394,58 @@
     .sense-card h3{font-size:20px;margin:0 0 10px;letter-spacing:-.04em}
     .sense-card p{font-size:12px;line-height:1.75;color:color-mix(in srgb,var(--ink) 68%,transparent);margin:0}
     .sense-signals{margin-top:18px;font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.02em}
+
+    /* ── Animated marks for 望聞問切 ──
+       Same treatment as the method steps: one moving part per mark, every animated
+       property declared only in @keyframes so an un-animated render is the finished
+       icon, and each card keeps a persistent anchor the motion plays against. */
+    .sense-card:nth-child(2){--stagger:.36s}
+    .sense-card:nth-child(3){--stagger:.72s}
+    .sense-card:nth-child(4){--stagger:1.08s}
+
+    /* 望 see — the pupil scans what it is looking at */
+    .s-eye .s-pupil{animation:sLook 2.9s cubic-bezier(.45,.05,.35,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes sLook{
+      0%,14%{transform:translateX(0)}
+      32%,44%{transform:translateX(-2.9px)}
+      62%,74%{transform:translateX(2.9px)}
+      92%,100%{transform:translateX(0)}}
+
+    /* 聞 listen — sound arriving at the ear */
+    .s-ear .s-ripple{transform-box:fill-box;transform-origin:0% 50%;
+      animation:sRipple 2.9s ease-in-out infinite;
+      animation-delay:calc(var(--stagger,0s) + var(--r,0s))}
+    .s-ear .r2{--r:.44s}
+    @keyframes sRipple{
+      0%,12%{opacity:.18;transform:scale(.8)}
+      30%{opacity:1;transform:scale(1)}
+      58%,100%{opacity:.18;transform:scale(.8)}}
+
+    /* 問 ask — the question forms */
+    .s-ask .s-qmark{--len:8.79px;
+      animation:sAsk 2.9s cubic-bezier(.45,.05,.25,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes sAsk{
+      0%{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);opacity:0}
+      6%{opacity:1}
+      26%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      80%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      92%,100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
+    .s-ask .s-qdot{transform-box:fill-box;transform-origin:center;
+      animation:sMark 2.9s ease-in-out infinite;animation-delay:var(--stagger,0s)}
+    @keyframes sMark{
+      0%,24%{opacity:0;transform:scale(.2)}
+      34%{opacity:1;transform:scale(1)}
+      80%{opacity:1;transform:scale(1)}
+      92%,100%{opacity:0;transform:scale(.2)}}
+
+    /* 切 probe — a pulse travelling the trace. A 7-unit dash over a full-length gap is
+       the only thing on the path, so it reads as one bright segment moving along a
+       dim trace that stays visible throughout. */
+    .s-probe .s-trace{--len:38.69px;
+      animation:sPulse 2.9s linear infinite;animation-delay:var(--stagger,0s)}
+    @keyframes sPulse{
+      0%{stroke-dasharray:7px var(--len);stroke-dashoffset:calc(var(--len) + 7px)}
+      100%{stroke-dasharray:7px var(--len);stroke-dashoffset:0}}
     .sense-origin{
       position:relative;z-index:1;margin:32px 0 0;padding-top:20px;
       border-top:1px solid var(--line);max-width:860px;
@@ -822,7 +881,7 @@
         </div>
         <div class="process">
           <div class="process-card">
-            <div class="num mono"><span>01 / COMMAND</span><span class="proc-icon" aria-hidden="true"><svg class="p-cmd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="p-draw" d="M1.4 15.3H4.5V8.7H8.7V15.3H12.9V8.7H15.2V15.3"/><rect class="p-node" x="16.6" y="7.1" width="5.9" height="9.8" rx="1.9"/></svg></span></div>
+            <div class="num mono"><span>01 / COMMAND</span><span class="proc-icon" aria-hidden="true"><svg class="p-cmd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="p-range" d="M14.43 5.69A14.37 14.37 0 0 1 19.77 12.33" stroke-dasharray="2.2 2.4" opacity=".5"/><g class="p-arm"><line x1="6.4" y1="17.6" x2="17.6" y2="8.6"/><circle class="p-tip" cx="17.6" cy="8.6" r="1.3" fill="currentColor" stroke="none"/></g><circle class="p-joint" cx="6.4" cy="17.6" r="1.7"/></svg></span></div>
             <h3 data-i18n="method.command.title">Active Excitation</h3>
             <p data-i18n="method.command.desc">Run standardized movements and test sequences designed to expose latent faults.</p>
             <div class="mini mono">stand → squat → walk → joint sweep</div>
@@ -859,7 +918,7 @@
           <div class="sense-grid">
             <article class="sense-card">
               <div class="sense-mark">
-                <svg class="sense-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.8 12S5.4 5.7 12 5.7 22.2 12 22.2 12 18.6 18.3 12 18.3 1.8 12 1.8 12Z"/><circle cx="12" cy="12" r="3.1"/></svg>
+                <svg class="sense-icon s-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.8 12S5.4 5.7 12 5.7 22.2 12 22.2 12 18.6 18.3 12 18.3 1.8 12 1.8 12Z"/><circle class="s-pupil" cx="12" cy="12" r="3.1"/></svg>
                 <span class="sense-glyph">望</span>
               </div>
               <small data-i18n="senses.see.en">SEE</small>
@@ -869,7 +928,7 @@
             </article>
             <article class="sense-card">
               <div class="sense-mark">
-                <svg class="sense-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 8.7a5.8 5.8 0 1 1 11.6 0c0 3.1-2.2 4.2-3.5 5.4-1.1.9-1.5 1.7-1.5 3a2.6 2.6 0 0 1-5.2 0"/><path d="M14.6 8.7a2.6 2.6 0 0 0-5.2 0v.9a1.9 1.9 0 1 1 0 3.7"/></svg>
+                <svg class="sense-icon s-ear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 8.7a5.8 5.8 0 1 1 11.6 0c0 3.1-2.2 4.2-3.5 5.4-1.1.9-1.5 1.7-1.5 3a2.6 2.6 0 0 1-5.2 0"/><path d="M14.6 8.7a2.6 2.6 0 0 0-5.2 0v.9a1.9 1.9 0 1 1 0 3.7"/><path class="s-ripple r1" d="M19.7 8.8a5 5 0 0 1 0 6.4"/><path class="s-ripple r2" d="M21.3 7.2a8 8 0 0 1 0 9.6"/></svg>
                 <span class="sense-glyph">聞</span>
               </div>
               <small data-i18n="senses.listen.en">LISTEN</small>
@@ -879,7 +938,7 @@
             </article>
             <article class="sense-card">
               <div class="sense-mark">
-                <svg class="sense-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15.2a2 2 0 0 1-2 2H8l-5 3.8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><path d="M10.2 8.6a1.9 1.9 0 0 1 3.7.6c0 1.3-1.8 1.6-1.8 2.8"/><circle cx="12" cy="14.4" r=".85" fill="currentColor" stroke="none"/></svg>
+                <svg class="sense-icon s-ask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15.2a2 2 0 0 1-2 2H8l-5 3.8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><path class="s-qmark" d="M10.2 8.6a1.9 1.9 0 0 1 3.7.6c0 1.3-1.8 1.6-1.8 2.8"/><circle class="s-qdot" cx="12" cy="14.4" r=".85" fill="currentColor" stroke="none"/></svg>
                 <span class="sense-glyph">問</span>
               </div>
               <small data-i18n="senses.ask.en">ASK</small>
@@ -889,7 +948,7 @@
             </article>
             <article class="sense-card">
               <div class="sense-mark">
-                <svg class="sense-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22"/></svg>
+                <svg class="sense-icon s-probe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22" opacity=".4"/><path class="s-trace" d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22"/></svg>
                 <span class="sense-glyph">切</span>
               </div>
               <small data-i18n="senses.probe.en">PROBE</small>
