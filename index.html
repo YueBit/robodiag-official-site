@@ -179,7 +179,9 @@
       content:'';position:absolute;left:3px;right:0;bottom:3px;height:5px;background:var(--cream);
       z-index:-1;transform:rotate(-2deg);
     }
-    .hero-lede{max-width:540px;color:var(--muted);font-size:16px;line-height:1.9;margin:0}
+    .hero-lede{max-width:560px;color:var(--muted);font-size:16px;line-height:1.9;margin:0}
+    .hero-lede p{margin:0}
+    .hero-lede p + p{margin-top:14px}
     .hero-actions{display:flex;align-items:center;gap:26px;margin-top:36px;flex-wrap:wrap}
 
     /* ── Robot (low-resolution pixel humanoid) ── */
@@ -599,7 +601,10 @@
         <div class="hero-copy">
           <div class="eyebrow"><span class="status-dot"></span> <span data-i18n="hero.eyebrow">ROBOT DIAGNOSTICS</span></div>
           <h1 data-i18n-html="hero.title">Know your robot <em>before it fails.</em></h1>
-          <p class="hero-lede" data-i18n="hero.lede">Robodiag actively exercises robots, captures internal telemetry and external signals, and turns anomalies into evidence-backed diagnosis from the factory line to field service.</p>
+          <div class="hero-lede" data-i18n-html="hero.lede">
+            <p>Robots can fail too. When they do, we need to know what went wrong, why it happened, and what to do next.</p>
+            <p>RoboDiag provides diagnostic capabilities throughout the robot lifecycle — from production and commissioning to daily operation and service — helping teams understand robot health, detect problems, identify root causes, and take the right action faster.</p>
+          </div>
           <div class="hero-actions">
             <a class="button button-dark" href="mailto:never84@icloud.com?subject=Robodiag%20Demo%20Request"><span data-i18n="nav.demo">Request a Demo</span> <span>→</span></a>
             <a class="text-link" href="#method"><span data-i18n="hero.how">See How It Works</span> <span>↓</span></a>
@@ -1012,7 +1017,7 @@
         "nav.method":"Method","nav.product":"Product","nav.usecases":"Use Cases","nav.company":"Company","nav.demo":"Request a Demo",
         "hero.eyebrow":"ROBOT DIAGNOSTICS",
         "hero.title":"Know your robot <em>before it fails.</em>",
-        "hero.lede":"Robodiag actively exercises robots, captures internal telemetry and external signals, and turns anomalies into evidence-backed diagnosis from the factory line to field service.",
+        "hero.lede":"<p>Robots can fail too. When they do, we need to know what went wrong, why it happened, and what to do next.</p><p>RoboDiag provides diagnostic capabilities throughout the robot lifecycle — from production and commissioning to daily operation and service — helping teams understand robot health, detect problems, identify root causes, and take the right action faster.</p>",
         "hero.how":"See How It Works",
         "robot.telemetry":"LIVE TELEMETRY","robot.faults":"FAULTS","robot.health":"HEALTH","robot.vision":"VISION","robot.acoustic":"ACOUSTIC","robot.torque":"TORQUE",
         "ticker":"HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i>",
@@ -1057,7 +1062,7 @@
         "nav.method":"方法","nav.product":"产品","nav.usecases":"应用场景","nav.company":"关于我们","nav.demo":"申请演示",
         "hero.eyebrow":"机器人诊断",
         "hero.title":"在故障发生之前，<em>先看懂你的机器人。</em>",
-        "hero.lede":"Robodiag 主动驱动机器人完成标准化动作，同步采集内部遥测和外部感知信号，把异常变成有据可依的诊断结论，从生产线延伸到现场运维。",
+        "hero.lede":"<p>机器人也会出故障，也需要知道“哪里出了问题、为什么出了问题、接下来该怎么办”。</p><p>RoboDiag 为机器人提供贯穿整个生命周期的诊断能力，从生产下线、部署调试到日常运行与维修，持续了解机器人的状态，发现异常、定位原因，并帮助工程师更快做出处理决策。</p>",
         "hero.how":"了解工作原理",
         "robot.telemetry":"实时遥测","robot.faults":"故障","robot.health":"健康度","robot.vision":"视觉检测","robot.acoustic":"声学","robot.torque":"扭矩",
         "ticker":"健康监测 <i>✦</i> 下线测试 <i>✦</i> 故障检测 <i>✦</i> 根因分析 <i>✦</i> 智能维修 <i>✦</i>",
@@ -1119,20 +1124,23 @@
       } }
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, filter)
       const hits = []
+      const brandRe = /Robo[Dd]iag/
       while (walker.nextNode()) {
-        if (walker.currentNode.nodeValue.indexOf('Robodiag') !== -1) hits.push(walker.currentNode)
+        if (brandRe.test(walker.currentNode.nodeValue)) hits.push(walker.currentNode)
       }
       hits.forEach(node => {
         const parent = node.parentNode
         if (parent && parent.classList && parent.classList.contains('brand-word')) return
         const frag = document.createDocumentFragment()
-        node.nodeValue.split('Robodiag').forEach((part, i, arr) => {
-          if (part) frag.appendChild(document.createTextNode(part))
-          if (i < arr.length - 1) {
+        node.nodeValue.split(/(Robo[Dd]iag)/).forEach((part) => {
+          if (!part) return
+          if (/^Robo[Dd]iag$/.test(part)) {
             const span = document.createElement('span')
             span.className = 'brand-word'
-            span.textContent = 'Robodiag'
+            span.textContent = part
             frag.appendChild(span)
+          } else {
+            frag.appendChild(document.createTextNode(part))
           }
         })
         parent.replaceChild(frag, node)
