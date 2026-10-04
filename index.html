@@ -479,6 +479,31 @@
     .list div{display:flex;align-items:center;gap:12px;padding:9px 0;color:#5f5963;font-size:14px;border-bottom:1px solid rgba(37,34,43,.07)}
     .list div:last-child{border-bottom:0}
     .badx{color:#b9a9a9;font-weight:800}.goodx{color:#4f9a7e;font-weight:800}
+    /* The two panels lift in first, then Today ticks off line by line, and only when the
+       last pain point has landed does "With Robodiag" start its own list. The gate holds
+       the bullets back while the panels are still arriving, so a list that starts ticking
+       once the panels are properly on screen never flashes its finished state first;
+       .js-anim marks a run where the observer really exists, and the whole block is for
+       no-preference only, so an un-animated render is already the finished state. */
+    @media (prefers-reduced-motion:no-preference){
+      @keyframes whyBoxIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+      @keyframes whyItemIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+      html.js-anim .why-wrap:not(.in-view) .why-box,
+      html.js-anim .why-wrap:not(.in-view) .why-box .list div{opacity:0}
+      .why-wrap.in-view .why-box{animation:whyBoxIn .6s cubic-bezier(.22,.68,.3,1) both}
+      .why-wrap.in-view .why-box.good{animation-delay:.16s}
+      .why-wrap.in-view .why-box .list div{animation:whyItemIn .46s cubic-bezier(.22,.68,.3,1) both}
+      .why-wrap.in-view .why-box .list div:nth-child(1){animation-delay:.34s}
+      .why-wrap.in-view .why-box .list div:nth-child(2){animation-delay:.5s}
+      .why-wrap.in-view .why-box .list div:nth-child(3){animation-delay:.66s}
+      .why-wrap.in-view .why-box .list div:nth-child(4){animation-delay:.82s}
+      .why-wrap.in-view .why-box .list div:nth-child(5){animation-delay:.98s}
+      .why-wrap.in-view .why-box.good .list div:nth-child(1){animation-delay:1.22s}
+      .why-wrap.in-view .why-box.good .list div:nth-child(2){animation-delay:1.46s}
+      .why-wrap.in-view .why-box.good .list div:nth-child(3){animation-delay:1.7s}
+      .why-wrap.in-view .why-box.good .list div:nth-child(4){animation-delay:1.94s}
+      .why-wrap.in-view .why-box.good .list div:nth-child(5){animation-delay:2.18s}
+    }
 
     /* Products */
     .products{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
@@ -1133,13 +1158,43 @@
       })
     })
 
-    // Reveal on scroll
+    // Reveal on scroll. .js-anim tells the CSS that this observer really exists, which is
+    // what lets the why lists start hidden instead of showing their finished state first.
+    document.documentElement.classList.add('js-anim')
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) entry.target.classList.add('in-view')
       })
     }, { threshold: 0.12 })
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+
+    // Why Robodiag: wait until the two panels are properly on screen, then let the lists
+    // tick in one line at a time — Today first, With Robodiag only after the last pain
+    // point has landed. The delayed trigger is deliberate: the section itself reveals
+    // while its panels are still below the fold, and a two-second list that plays out
+    // off screen is a list nobody sees.
+    const whyWrap = document.querySelector('.why-wrap')
+    if (whyWrap) {
+      let whyReleased = false
+      const releaseWhy = () => {
+        if (whyReleased) return
+        whyReleased = true
+        whyWrap.classList.add('in-view')
+      }
+      const whyObserver = new IntersectionObserver((entries, obs) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        obs.disconnect()
+        releaseWhy()
+      }, { threshold: 0.25, rootMargin: '0px 0px -20% 0px' })
+      whyObserver.observe(whyWrap)
+      // Fallback for a viewport too short to hold a quarter of the block: once the section
+      // itself has been on screen for a moment, release rather than stay hidden.
+      new IntersectionObserver((entries, obs) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        obs.disconnect()
+        setTimeout(releaseWhy, 4000)
+      }, { threshold: 0.12 }).observe(whyWrap.closest('.reveal'))
+    }
 
     // Bilingual copy
     const copy = {
