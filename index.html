@@ -309,14 +309,15 @@
       88%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
       100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
 
-    /* 01 command — a joint driven through its commanded range. The pivot (6.4,17.6) is
-       the bottom-left corner of the arm group's box, so fill-box + 0%/100% is the origin. */
-    .p-cmd .p-arm{transform-box:fill-box;transform-origin:0% 100%;
-      animation:pSweep 2.9s cubic-bezier(.5,.06,.32,1) infinite;animation-delay:var(--stagger,0s)}
-    @keyframes pSweep{
-      0%,8%{transform:rotate(-13deg)}
-      34%,50%{transform:rotate(13deg)}
-      76%,100%{transform:rotate(-13deg)}}
+    /* 01 command — a joint driven to both ends of its commanded range: the arm swings
+       across the dashed arc, and the arc is the range itself. The pivot is the bottom
+       centre of the arm group's box, so fill-box + 50%/100% is the origin. */
+    .p-cmd .p-arm{transform-box:fill-box;transform-origin:50% 100%;
+      animation:pDrive 2.9s cubic-bezier(.5,.06,.32,1) infinite both;animation-delay:var(--stagger,0s)}
+    @keyframes pDrive{
+      0%,10%{transform:rotate(-32deg)}
+      40%,56%{transform:rotate(32deg)}
+      86%,100%{transform:rotate(-32deg)}}
 
     /* 02 observe — evidence arriving from outside */
     .p-obs .p-wave{transform-box:fill-box;transform-origin:center;
@@ -603,13 +604,20 @@
       52%,88%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
       94%,100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
 
-    /* 02 quality — the lens reads the module front to back */
-    .u-qc .u-lens{animation:uScan 2.9s cubic-bezier(.45,.05,.35,1) infinite;animation-delay:var(--stagger,0s)}
-    @keyframes uScan{
-      0%,14%{transform:translateX(0)}
-      32%,44%{transform:translateX(-4px)}
-      62%,74%{transform:translateX(4px)}
-      92%,100%{transform:translateX(0)}}
+    /* 02 quality — the same procedure running down the list: the sheet lands, then the three
+       rows fill in on their own beats and the finished checklist holds before it clears.
+       The rows carry their offset in the keyframes, not in an animation-delay: a delay
+       shifts the first pass only, so the second loop on would snap in as an already
+       finished list. Fill is both-ways so a row waiting its turn stays hidden instead of
+       showing the finished sheet, blinking out and fading back in. */
+    .u-qc .u-rows{animation:uRows 2.9s ease-in-out infinite both;animation-delay:var(--stagger,0s)}
+    @keyframes uRows{0%,4%{opacity:0}10%,88%{opacity:1}94%,100%{opacity:0}}
+    .u-qc .u-row{animation:uRow1 2.9s cubic-bezier(.3,.7,.3,1) infinite both;animation-delay:var(--stagger,0s)}
+    .u-qc .u-row.r2{animation-name:uRow2}
+    .u-qc .u-row.r3{animation-name:uRow3}
+    @keyframes uRow1{0%,12%{opacity:0;transform:translateX(-3px)}18%,100%{opacity:1;transform:translateX(0)}}
+    @keyframes uRow2{0%,20%{opacity:0;transform:translateX(-3px)}26%,100%{opacity:1;transform:translateX(0)}}
+    @keyframes uRow3{0%,28%{opacity:0;transform:translateX(-3px)}34%,100%{opacity:1;transform:translateX(0)}}
 
     /* 03 service — the nut turns a sixth of a revolution over its fixed hub. A hexagon is
        symmetric every 60deg, so the end of the loop is the start of it. */
@@ -982,7 +990,7 @@
         </div>
         <div class="process">
           <div class="process-card">
-            <div class="num mono"><span>01 / COMMAND</span><span class="proc-icon" aria-hidden="true"><svg class="p-cmd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="p-range" d="M14.43 5.69A14.37 14.37 0 0 1 19.77 12.33" stroke-dasharray="2.2 2.4" opacity=".5"/><g class="p-arm"><line x1="6.4" y1="17.6" x2="17.6" y2="8.6"/><circle class="p-tip" cx="17.6" cy="8.6" r="1.3" fill="currentColor" stroke="none"/></g><circle class="p-joint" cx="6.4" cy="17.6" r="1.7"/></svg></span></div>
+            <div class="num mono"><span>01 / COMMAND</span><span class="proc-icon" aria-hidden="true"><svg class="p-cmd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.96 7.93A11.4 11.4 0 0 1 18.04 7.93" stroke-dasharray="2.4 2.6" opacity=".5"/><g class="p-arm"><line x1="12" y1="17.6" x2="12" y2="7"/><circle class="p-tip" cx="12" cy="7" r="1.3" fill="currentColor" stroke="none"/></g><circle class="p-joint" cx="12" cy="17.6" r="1.9"/></svg></span></div>
             <h3 data-i18n="method.command.title">Active Excitation</h3>
             <p data-i18n="method.command.desc">Run standardized movements and test sequences designed to expose latent faults.</p>
             <div class="mini mono">stand → squat → walk → joint sweep</div>
@@ -1178,7 +1186,7 @@
           <div class="use-card">
             <div class="use-head">
               <div class="use-icon">02</div>
-              <span class="use-mark" aria-hidden="true"><svg class="u-qc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="8.9" width="12.4" height="8.6"/><g class="u-lens"><circle cx="11.4" cy="10.6" r="3.4"/><path d="M13.9 13.1l3.3 3.5"/></g></svg></span>
+              <span class="use-mark" aria-hidden="true"><svg class="u-qc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="3.6" width="17.2" height="16.8"/><g class="u-rows"><g class="u-row r1"><path d="M6.7 7.6l1.6 1.8 3.2-3.6"/><path d="M13.7 7.6h4.2"/></g><g class="u-row r2"><path d="M6.7 12.4l1.6 1.8 3.2-3.6"/><path d="M13.7 12.4h4.2"/></g><g class="u-row r3"><path d="M6.7 17.2l1.6 1.8 3.2-3.6"/><path d="M13.7 17.2h4.2"/></g></g></svg></span>
             </div>
             <h3 data-i18n="use.quality.title">Incoming / Outgoing Quality</h3>
             <p data-i18n="use.quality.desc">Verify modules, assemblies and finished robots using consistent test procedures.</p>
