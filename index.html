@@ -357,6 +357,7 @@
     @media (prefers-reduced-motion:reduce){
       .process-card .proc-icon svg *,
       .sense-card .sense-icon *,
+      .use-card .use-mark svg *,
       .mini-pulse{animation:none!important}
     }
 
@@ -578,6 +579,45 @@
     .use-card h3{font-size:20px;margin:20px 0 8px;letter-spacing:-.03em}
     .use-card p{color:#6e6770;font-size:13px;margin:0;line-height:1.75}
     .use-icon{width:46px;height:46px;border:1px solid var(--line);display:grid;place-items:center;color:var(--purple);background:var(--lilac);font-size:15px;font-weight:900}
+    .use-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .use-mark{flex:none;width:34px;height:34px;color:var(--purple-deep)}
+    .use-mark svg{display:block;width:100%;height:100%}
+
+    /* ── Animated marks for the three use cases ──
+       Same treatment as the method steps and the four senses: one moving part per mark,
+       every animated property declared only in @keyframes so an un-animated render is the
+       finished icon, and each mark keeps a static anchor the motion plays against. */
+    .use-card:nth-child(2){--stagger:.42s}
+    .use-card:nth-child(3){--stagger:.84s}
+
+    /* 01 end of line — a unit runs the line, then the check stamps in behind it */
+    .u-eol .u-unit{animation:uRun 2.9s cubic-bezier(.45,.05,.3,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes uRun{
+      0%,10%{transform:translateX(0);opacity:1}
+      34%,88%{transform:translateX(9px);opacity:1}
+      94%,100%{transform:translateX(9px);opacity:0}}
+    .u-eol .u-tick{--len:10.15px;animation:uStamp 2.9s cubic-bezier(.45,.05,.25,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes uStamp{
+      0%,30%{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);opacity:0}
+      38%{opacity:1}
+      52%,88%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:1}
+      94%,100%{stroke-dasharray:var(--len);stroke-dashoffset:0;opacity:0}}
+
+    /* 02 quality — the lens reads the module front to back */
+    .u-qc .u-lens{animation:uScan 2.9s cubic-bezier(.45,.05,.35,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes uScan{
+      0%,14%{transform:translateX(0)}
+      32%,44%{transform:translateX(-4px)}
+      62%,74%{transform:translateX(4px)}
+      92%,100%{transform:translateX(0)}}
+
+    /* 03 service — the nut turns a sixth of a revolution over its fixed hub. A hexagon is
+       symmetric every 60deg, so the end of the loop is the start of it. */
+    .u-svc .u-nut{transform-box:fill-box;transform-origin:center;
+      animation:uTurn 2.9s cubic-bezier(.42,.02,.4,1) infinite;animation-delay:var(--stagger,0s)}
+    @keyframes uTurn{
+      0%,8%{transform:rotate(0deg)}
+      62%,100%{transform:rotate(60deg)}}
 
     /* Vision */
     .vision{text-align:center;padding:135px 0}
@@ -1128,17 +1168,26 @@
         </div>
         <div class="use-grid">
           <div class="use-card">
-            <div class="use-icon">01</div>
+            <div class="use-head">
+              <div class="use-icon">01</div>
+              <span class="use-mark" aria-hidden="true"><svg class="u-eol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 20.2h19.2" stroke-dasharray="2.2 2.4" opacity=".5"/><rect class="u-unit" x="3.4" y="14.4" width="5.6" height="5.8"/><path class="u-tick" d="M11.4 7.4l2.3 2.5 4.3-5.2"/></svg></span>
+            </div>
             <h3 data-i18n="use.eol.title">Manufacturing EOL</h3>
             <p data-i18n="use.eol.desc">Every robot leaves the line with a standardized, traceable health record.</p>
           </div>
           <div class="use-card">
-            <div class="use-icon">02</div>
+            <div class="use-head">
+              <div class="use-icon">02</div>
+              <span class="use-mark" aria-hidden="true"><svg class="u-qc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="8.9" width="12.4" height="8.6"/><g class="u-lens"><circle cx="11.4" cy="10.6" r="3.4"/><path d="M13.9 13.1l3.3 3.5"/></g></svg></span>
+            </div>
             <h3 data-i18n="use.quality.title">Incoming / Outgoing Quality</h3>
             <p data-i18n="use.quality.desc">Verify modules, assemblies and finished robots using consistent test procedures.</p>
           </div>
           <div class="use-card">
-            <div class="use-icon">03</div>
+            <div class="use-head">
+              <div class="use-icon">03</div>
+              <span class="use-mark" aria-hidden="true"><svg class="u-svc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g class="u-nut"><path d="M20.4 12 16.2 4.73H7.8L3.6 12l4.2 7.27h8.4Z"/></g><circle cx="12" cy="12" r="2.8"/></svg></span>
+            </div>
             <h3 data-i18n="use.service.title">Service &amp; Maintenance</h3>
             <p data-i18n="use.service.desc">Diagnose robots before replacing parts and reduce unnecessary service effort.</p>
           </div>
