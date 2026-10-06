@@ -154,7 +154,7 @@
     html[data-theme="dark"] .cta{background:var(--card)}
     html[data-theme="dark"] .why-box.good{background:var(--mint)}
     html[data-theme="dark"] .mini-ui{background:#100e13;border-color:#514656}
-    html[data-theme="dark"] .hero h1 em{
+    html[data-theme="dark"] .hero h1 em mark{
       text-decoration-color:var(--cream);
       text-decoration-color:color-mix(in srgb,var(--cream) 68%,transparent);
     }
@@ -186,16 +186,20 @@
     .hero h1{
       font-size:clamp(48px,6.2vw,86px);line-height:1.03;letter-spacing:-.045em;word-spacing:.08em;margin:0 0 26px;font-weight:800;
     }
-    /* The marker runs under the emphasized phrase on every line it occupies. It cannot be a
-       single positioned bar: the phrase wraps, and an absolutely positioned child of a split
-       inline anchors to the first fragment's left and the last fragment's right, which lands
-       the bar under the wrong words (and collapses to zero width at some viewports, and sits
-       behind the CJK glyphs where they fill the line box). A text-decoration is drawn per
-       fragment, under the ink, identically for Latin and CJK. */
-    .hero h1 em{
-      font-style:normal;color:var(--purple);
+    /* The cream marker underlines the payoff words only, and only those words carry <mark>.
+       It cannot be a positioned bar on the <em> (that anchors to the first fragment's left
+       and the last fragment's right, so it lands as a stub under the wrong words, sits behind
+       CJK glyphs that fill the line box, and collapses to zero width at some viewports), nor a
+       decoration on the whole <em> (which marks the phrase on every line instead of
+       underlining the payoff). A bare tag keeps the dictionaries valid JS: their strings are
+       double-quoted, so an attribute would need escaping. nowrap stops the two-character CJK
+       marker from being split across the line break. */
+    .hero h1 em{font-style:normal;color:var(--purple)}
+    .hero h1 em mark{
+      background:none;color:inherit;font-weight:inherit;
       text-decoration-line:underline;text-decoration-color:var(--cream);
       text-decoration-thickness:5px;text-underline-offset:.09em;text-decoration-skip-ink:none;
+      white-space:nowrap;
     }
     .hero-lede{max-width:560px;color:var(--muted);font-size:16px;line-height:1.9;margin:0}
     .hero-lede p{margin:0}
@@ -849,7 +853,7 @@
       <section class="hero">
         <div class="hero-copy">
           <div class="eyebrow"><span class="status-dot"></span> <span data-i18n="hero.eyebrow">ROBOT DIAGNOSTICS</span></div>
-          <h1 data-i18n-html="hero.title">Know your robot. <em>Know what’s wrong.</em></h1>
+          <h1 data-i18n-html="hero.title">Know your robot. <em>Know what’s <mark>wrong.</mark></em></h1>
           <div class="hero-lede" data-i18n-html="hero.lede">
             <p>From production to field operation, Robodiag continuously understands your robot’s condition, detects abnormalities, identifies root causes, and helps problems get found and fixed faster.</p>
           </div>
@@ -1333,7 +1337,7 @@
       en: {
         "nav.method":"Method","nav.product":"Product","nav.usecases":"Use Cases","nav.company":"Company","nav.demo":"Request a Demo",
         "hero.eyebrow":"ROBOT DIAGNOSTICS",
-        "hero.title":"Know your robot. <em>Know what’s wrong.</em>",
+        "hero.title":"Know your robot. <em>Know what’s <mark>wrong.</mark></em>",
         "hero.lede":"<p>From production to field operation, Robodiag continuously understands your robot’s condition, detects abnormalities, identifies root causes, and helps problems get found and fixed faster.</p>",
         "hero.how":"See How It Works",
         "robot.telemetry":"LIVE TELEMETRY","robot.faults":"FAULTS","robot.health":"HEALTH","robot.vision":"VISION","robot.acoustic":"ACOUSTIC","robot.torque":"TORQUE",
@@ -1378,7 +1382,7 @@
       zh: {
         "nav.method":"方法","nav.product":"产品","nav.usecases":"应用场景","nav.company":"关于我们","nav.demo":"申请演示",
         "hero.eyebrow":"机器人诊断",
-        "hero.title":"懂你的机器人，<em>更懂它哪里不对。</em>",
+        "hero.title":"懂你的机器人，<em>更懂它哪里<mark>不对</mark>。</em>",
         "hero.lede":"<p>从生产下线到现场运维，Robodiag 持续理解机器人的状态，发现异常、定位原因，让问题更快被看见和解决。</p>",
         "hero.how":"了解工作原理",
         "robot.telemetry":"实时遥测","robot.faults":"故障","robot.health":"健康度","robot.vision":"视觉检测","robot.acoustic":"声学","robot.torque":"扭矩",
