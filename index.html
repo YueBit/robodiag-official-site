@@ -154,7 +154,10 @@
     html[data-theme="dark"] .cta{background:var(--card)}
     html[data-theme="dark"] .why-box.good{background:var(--mint)}
     html[data-theme="dark"] .mini-ui{background:#100e13;border-color:#514656}
-    html[data-theme="dark"] .hero h1 em:after{opacity:.68}
+    html[data-theme="dark"] .hero h1 em{
+      text-decoration-color:var(--cream);
+      text-decoration-color:color-mix(in srgb,var(--cream) 68%,transparent);
+    }
     html[data-theme="dark"] .orbit{border-color:#5e4a69}
     html[data-theme="dark"] .robot-shadow{background:#3a333d}
     html[data-theme="dark"] .dark{background:var(--dark-section)}
@@ -183,10 +186,16 @@
     .hero h1{
       font-size:clamp(48px,6.2vw,86px);line-height:1.03;letter-spacing:-.045em;word-spacing:.08em;margin:0 0 26px;font-weight:800;
     }
-    .hero h1 em{font-style:normal;color:var(--purple);position:relative}
-    .hero h1 em:after{
-      content:'';position:absolute;left:3px;right:0;bottom:3px;height:5px;background:var(--cream);
-      z-index:-1;transform:rotate(-2deg);
+    /* The marker runs under the emphasized phrase on every line it occupies. It cannot be a
+       single positioned bar: the phrase wraps, and an absolutely positioned child of a split
+       inline anchors to the first fragment's left and the last fragment's right, which lands
+       the bar under the wrong words (and collapses to zero width at some viewports, and sits
+       behind the CJK glyphs where they fill the line box). A text-decoration is drawn per
+       fragment, under the ink, identically for Latin and CJK. */
+    .hero h1 em{
+      font-style:normal;color:var(--purple);
+      text-decoration-line:underline;text-decoration-color:var(--cream);
+      text-decoration-thickness:5px;text-underline-offset:.09em;text-decoration-skip-ink:none;
     }
     .hero-lede{max-width:560px;color:var(--muted);font-size:16px;line-height:1.9;margin:0}
     .hero-lede p{margin:0}
