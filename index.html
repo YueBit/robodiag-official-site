@@ -6,10 +6,10 @@
   <meta name="description" content="Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service." />
   <title>Robodiag — Know your robot before it fails.</title>
   <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="icon" href="favicon.ico?v=3" sizes="any">
-  <link rel="icon" type="image/png" href="favicon-32.png?v=3" sizes="32x32">
-  <link rel="icon" type="image/png" href="favicon-192.png?v=3" sizes="192x192">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
+  <link rel="icon" href="favicon.ico?v=4" sizes="any">
+  <link rel="icon" type="image/png" href="favicon-32.png?v=4" sizes="32x32">
+  <link rel="icon" type="image/png" href="favicon-192.png?v=4" sizes="192x192">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
   <style>
     @font-face{font-family:Comfortaa;src:url('Comfortaa.ttf') format('truetype');font-weight:100 900;font-style:normal}
     @font-face{font-family:Inter;src:url('fonts/inter-latin-wght-normal.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
@@ -99,7 +99,9 @@
     .brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:-.05em}
     .brand-word{font-family:Comfortaa,ui-rounded,system-ui,sans-serif;font-weight:700;letter-spacing:-.02em;-webkit-text-stroke:.04em currentColor}
     .brand-mark{
-      display:block;width:34px;height:34px;flex:none;
+      /* The mark is wider than it is tall (215x136 native), so it is sized by HEIGHT and
+         takes its own width - never a fixed square, which would squash the rings. */
+      display:block;height:34px;width:auto;flex:none;
     }
     /* The mark carries its own ink on a transparent field, so the dark theme swaps in a
        light-inked file rather than inverting the purple accent. Resolved before paint. */
@@ -719,7 +721,7 @@
       .site-header,.shell{padding-left:18px;padding-right:18px}
       .site-header{height:64px}
       .brand{font-size:19px;gap:8px}
-      .brand-mark{width:28px;height:28px}
+      .brand-mark{height:28px;width:auto}
       .utility-switch{min-width:36px;height:32px;padding:0 8px}
       .lang-short{display:block}
       .lang-label{display:none}
@@ -809,7 +811,7 @@
 
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Robodiag home">
-      <img class="brand-mark mark-light" src="robodiag-mark.png" alt="" width="34" height="34"><img class="brand-mark mark-dark" src="robodiag-mark-dark.png" alt="" width="34" height="34"><span>Robodiag</span>
+      <img class="brand-mark mark-light" src="robodiag-mark.png" alt="" width="54" height="34"><img class="brand-mark mark-dark" src="robodiag-mark-dark.png" alt="" width="54" height="34"><span>Robodiag</span>
     </a>
     <nav class="nav" aria-label="Main navigation">
       <a href="#method" data-i18n="nav.method">Method</a>
