@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Rebuild the Alibaba PuHuiTi web subsets from the official source and update the
-# unicode-range in index.html. Run after editing any Chinese copy.
+# Rebuild the Chinese web subsets from their official sources and update the unicode-range in
+# index.html. Run after editing any Chinese copy. 字制区喜脉体 also draws the English headings
+# and the wordmark, so its subset carries the Latin as well; PuHuiTi stays CJK-only.
 #
 # Needs: python3 with fontTools + brotli (pyftsubset on PATH), curl.
 set -euo pipefail
@@ -31,9 +32,24 @@ io.open(sys.argv[1], "w", encoding="utf-8").write("".join(sorted(set(cjk) | set(
 print(f"  characters to embed: {len(set(cjk) | set(extra))}")
 PY
 
+# 1b. The ASCII and typographic marks the English headings and the wordmark need. They go only
+#     into the 喜脉体 subset: the Latin body copy is Ubuntu's, and PuHuiTi is never asked for
+#     Latin. Listed from what the face actually carries - it has no en dash (U+2013) and no
+#     arrow (U+2192), which fall through to the next family in the stack.
+python3 - "$WORK/latin.txt" <<'PY'
+import io, sys
+# ASCII only, plus the three marks the page already asks this face for. The quotes
+# (U+2018-201D) are deliberately absent: in this font they are the full-width CJK punctuation,
+# and claiming them for Latin text renders "what's" as "what'  s". Ubuntu owns them.
+latin = "".join(chr(c) for c in range(0x20, 0x7F)) + "\u00b7\u2014\u2026"
+io.open(sys.argv[1], "w", encoding="utf-8").write(latin)
+print(f"  latin + punctuation for the display face: {len(latin)} characters")
+PY
+cat "$WORK/charset.txt" "$WORK/latin.txt" > "$WORK/ximai-charset.txt"
+
 # 2. Subset each weight to woff2.
-subset() { # ttf out weight-decl
-  pyftsubset "$1" --text-file="$WORK/charset.txt" --flavor=woff2 --no-hinting \
+subset() { # ttf out [charset-file]
+  pyftsubset "$1" --text-file="${3:-$WORK/charset.txt}" --flavor=woff2 --no-hinting \
       --layout-features=kern --output-file="$2"
   printf "  %-24s %s\n" "$(basename "$2")" "$(wc -c < "$2") bytes"
 }
@@ -50,7 +66,7 @@ XM_URL="https://oss.maoken.com/%E7%8C%AB%E5%95%83%E5%AD%97%E4%BD%93/%E4%B8%AD%E5
 rm -rf "$WORK/ximai" && unzip -o -q "$XM_ZIP" -d "$WORK/ximai"
 XM_TTF="$(find "$WORK/ximai" -name '字制区喜脉体.ttf' | head -1)"
 [ -n "$XM_TTF" ] || { echo "喜脉体.ttf not found in $XM_ZIP" >&2; exit 1; }
-subset "$XM_TTF" fonts/ximaiti-regular.woff2
+subset "$XM_TTF" fonts/ximaiti-regular.woff2 "$WORK/ximai-charset.txt"
 
 # 3. Rewrite the unicode-range of the Chinese @font-face rules so the CSS keeps describing the
 #    files truthfully. PuHuiTi's two weights share one range; 喜脉体 has its own.
@@ -58,10 +74,12 @@ python3 - <<'PY'
 import io, re
 from fontTools.ttLib import TTFont
 
-def ranges_for(files):
+def ranges_for(files, min_code=0x2000):
+    # the floor keeps Latin out of the CJK faces' ranges, where Ubuntu owns it; the display
+    # face is declared for its own Latin too, so its floor is 0.
     codes = set()
     for f in files:
-        codes |= {c for c in TTFont(f, lazy=True).getBestCmap() if c > 0x2000}  # Ubuntu owns Latin
+        codes |= {c for c in TTFont(f, lazy=True).getBestCmap() if c > min_code}
     codes = sorted(codes)
     out, start, prev = [], codes[0], codes[0]
     for c in codes[1:]:
@@ -73,13 +91,13 @@ def ranges_for(files):
     return ",".join(f"U+{a:X}" if a == b else f"U+{a:X}-{b:X}" for a, b in out)
 
 html = io.open("index.html", encoding="utf-8").read()
-for pattern, files in [
+for pattern, files, floor in [
     (r"(puhuiti-(?:regular|bold)\.woff2'\) format\('woff2'\)[^}]*?unicode-range:)[^}]*",
-     ["fonts/puhuiti-regular.woff2", "fonts/puhuiti-bold.woff2"]),
+     ["fonts/puhuiti-regular.woff2", "fonts/puhuiti-bold.woff2"], 0x2000),
     (r"(ximaiti-regular\.woff2'\) format\('woff2'\)[^}]*?unicode-range:)[^}]*",
-     ["fonts/ximaiti-regular.woff2"]),
+     ["fonts/ximaiti-regular.woff2"], 0),
 ]:
-    ur = ranges_for(files)
+    ur = ranges_for(files, floor)
     html, n = re.subn(pattern, lambda m: m.group(1) + ur, html)
     print(f"  unicode-range updated on {n} rule(s) for {files[0].split('/')[-1]} ({len(ur)} chars)")
 io.open("index.html", "w", encoding="utf-8").write(html)

@@ -7,26 +7,37 @@ nothing here depends on a CORS rule or an external CDN staying up.
 |---|---|---|---|
 | `ubuntu-latin-400-normal.woff2` | Ubuntu | 400 | Latin subset (U+0000-00FF and friends) |
 | `ubuntu-latin-700-normal.woff2` | Ubuntu | 700 | same |
-| `puhuiti-regular.woff2` | Alibaba PuHuiTi (3 55 Regular) | 400-500 | 376 Chinese characters |
-| `puhuiti-bold.woff2` | Alibaba PuHuiTi (3 85 Bold) | 600-900 | the same 376 |
-| `ximaiti-regular.woff2` | 字制区喜脉体 (FontQu Smile) | 400-900 | the same 376, headings only |
+| `puhuiti-regular.woff2` | Alibaba PuHuiTi (3 55 Regular) | 400-500 | 383 Chinese characters |
+| `puhuiti-bold.woff2` | Alibaba PuHuiTi (3 85 Bold) | 600-900 | the same 383 |
+| `ximaiti-regular.woff2` | 字制区喜脉体 (FontQu Smile) | 400-900 | the same 383, plus its Latin |
 
 `index.html` stacks them per language: `html[lang="zh-CN"] body` puts Ubuntu first for Latin and
 digits, Alibaba PuHuiTi second for Chinese, then PingFang SC / Microsoft YaHei as the system
 fallbacks. `h1`-`h4` insert 喜脉体 ahead of PuHuiTi, so Chinese headings take the display face
-while body copy stays on PuHuiTi; the Latin inside those headings still comes from Ubuntu, since
-喜脉体 has no Latin at all. The English page does not download the Chinese faces.
+while body copy stays on PuHuiTi; the Latin inside those headings still comes from Ubuntu, so the
+Chinese page looks exactly as it did before the English rules below were added.
+
+The English page sets its headings and its wordmark in the display face as well, through two
+`html[lang="en"]` rules: one for `h1`-`h4`, one for `.brand-word` (the header wordmark and every
+mention the script wraps in that class). The Chinese page keeps Ubuntu for the brand word, where
+it sits inside Chinese copy. Both rules are declared ahead of `.four-senses h2` deliberately -
+equal specificity, later wins - so the classical headline stays on PuHuiTi in both languages.
+
+The Chinese page downloads the display face for its headings; the English page now downloads it
+too, for the headings and the wordmark, and preloads it with the stylesheet because the `h1` is
+the first thing painted.
 
 喜脉体 is declared across the whole `400 900` range although it has a single weight. That is
 deliberate: a static face declared across the range the page asks for is used exactly as drawn,
 whereas a face declared at one weight would leave the browser synthesising a faux bold for the
 800/900 headings — which on a condensed CJK face fills in the counters.
 
-## Why the Chinese faces are subsets
+## Why the faces are subsets
 
 The page's Chinese is a few hundred characters, but the full family is 8.5 MB per weight
 (20,976 hanzi) and 2.7 MB for 喜脉体 (7,093 glyphs). Subsetting to what the page renders takes
-each PuHuiTi weight to ~44 KB — about 0.5% of the original — and 喜脉体 to ~30 KB, which matters
+each PuHuiTi weight to ~45 KB — about 0.5% of the original — and 喜脉体 to ~35 KB including its
+Latin, which matters
 because GitHub Pages delivers to mainland China at 6-25 KB/s. A GB2312-sized safety margin
 (3,755 common hanzi) was measured at 995 KB for the PuHuiTi pair, i.e. ~49s on a China line, so
 the subsets are deliberately tight.
@@ -36,16 +47,29 @@ Microsoft YaHei (or, inside a heading, to PuHuiTi). If you edit Chinese copy, re
 `rebuild-subsets.sh` and commit the new `.woff2` files; that also rewrites the `unicode-range` in
 `index.html` so the CSS keeps describing the files truthfully.
 
+## The Latin inside 喜脉体
+
+The face carries a designed Latin - A-Z, a-z, 0-9 and its own punctuation - drawn as a companion
+to the Chinese: bold, geometric, square terminals. That is what the English headings and the
+wordmark are set in, and it is why the subset holds 95 ASCII glyphs alongside the Chinese.
+
+Two deliberate exclusions. The curly quotes (U+2018-201D) are the full-width CJK punctuation in
+this font, so claiming them for Latin text renders `what's` as `what'  s`; they are left out of
+the subset, so Ubuntu's own quotes are used instead. The en dash (U+2013) and the arrow (U+2192)
+are not in the face at all, so they fall through to the next family in the stack - which is what
+the arrows in `Command → Observe → Compare → Diagnose` have always done, in both languages.
+
 ## 喜脉体 and the classical 望聞問切
 
 喜脉体 carries 6,763 **simplified** hanzi (《通用规范汉字表》一级 + 二级字表) and no traditional
 forms. The section headline is written with the traditional characters — 望 · 聞 · 問 · 切 — and
 a further `望聞問切` appears in the watermark, in the chain-rail nodes and in the origin note.
 
-聞 (U+805E) and 問 (U+554F) are the only two characters anywhere on this page that the face does
-not have, so `index.html` carries one targeted exception: `.four-senses h2` keeps the previous
-stack, i.e. PuHuiTi. That keeps the classical term in a single face everywhere it appears rather
-than showing two of its four glyphs in a different typeface.
+聞 (U+805E) and 問 (U+554F) are the only two Chinese characters on the page that the face does
+not have (the arrow U+2192 is the third, and Ubuntu has no glyph for it either), so `index.html`
+carries one targeted exception: `.four-senses h2` keeps the previous stack, i.e. PuHuiTi. That
+keeps the classical term in a single face everywhere it appears rather than showing two of its
+four glyphs in a different typeface.
 
 Two ways to put that heading in 喜脉体 as well, if wanted:
 

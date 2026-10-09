@@ -28,10 +28,12 @@ Everything lives in `index.html`:
   markup, which is how headings that contain a `<br>` or an arrow are translated. Edit the English
   copy and its dictionary entry together, or the two languages drift apart. A script in `<head>`
   hides the English source text until the right language has been applied, so it never flashes.
-* **The Chinese fonts are subsets** — only the characters this page actually renders, because the
-  full families are megabytes and GitHub Pages delivers to mainland China at a trickle. If you edit
-  the Chinese copy, run `fonts/rebuild-subsets.sh` and commit the new `.woff2` files; a character
-  outside the subset silently falls back to the system font.
+* **The fonts are subsets** — only the characters this page actually renders, because the full
+  families are megabytes and GitHub Pages delivers to mainland China at a trickle. The Chinese faces
+  cover the Chinese copy; the display face (字制区喜脉体) also carries its own Latin, since the
+  English headings and the wordmark are set in it. If you edit the Chinese copy, run
+  `fonts/rebuild-subsets.sh` and commit the new `.woff2` files; a character outside the subset
+  silently falls back to the system font.
 * **Images are cache-busted by a `?v=` query** on every reference in `<head>` and in the header.
   Bump it when you replace an image, or returning visitors keep the old one for a while.
 * **The tab title is deliberately just `Robodiag`**, in both languages.
@@ -74,6 +76,7 @@ Push to `main`. GitHub Pages publishes in roughly 30-60 seconds; there is nothin
 ## Fonts and licences
 
 Latin text is set in **Ubuntu** and the Chinese body in **Alibaba PuHuiTi**, with
-**字制区喜脉体** for the Chinese headings. Everything is self-hosted and subset, and all three are
+**字制区喜脉体** for the Chinese headings and, on the English page, for its headings and the
+"Robodiag" wordmark. Everything is self-hosted and subset, and all three are
 free for commercial use. `fonts/README.md` records where each file came from, the size of each
 subset, and the authors' licence terms.
