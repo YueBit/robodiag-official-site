@@ -337,7 +337,12 @@
       .process-card .proc-icon svg *,
       .sense-card .sense-icon *,
       .use-card .use-mark svg *,
+      .ev-acq .sense-card,
+      .ev-acq .sense-origin,
+      .ev-acq .ev-node,
+      .ev-acq .ev-pulse,
       .mini-pulse{animation:none!important}
+      .ev-panel{transition:none!important}
     }
 
 
@@ -436,6 +441,63 @@
     html[lang="zh-CN"] .sense-origin{display:none}
     @media(max-width:640px){.sense-origin{font-size:12px}}
     html[data-theme="dark"] .four-senses{background:#1d1921}
+
+    /* ── Evidence chain: the rail is the control for the four senses below ── */
+    .ev-chain{
+      display:flex;align-items:center;gap:22px;width:100%;margin-top:32px;padding:15px 20px;
+      background:var(--card);border:1px solid var(--line);color:inherit;font:inherit;text-align:left;
+      cursor:pointer;position:relative;z-index:1;
+      box-shadow:0 0 0 color-mix(in srgb,var(--purple) 22%,transparent);
+      transition:translate .18s ease,box-shadow .18s ease,border-color .18s ease
+    }
+    .ev-chain:hover{translate:-3px -3px;box-shadow:5px 5px 0 color-mix(in srgb,var(--purple) 22%,transparent);border-color:color-mix(in srgb,var(--purple) 45%,var(--line))}
+    .ev-chain:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+    .ev-rail{position:relative;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;flex:1 1 auto;min-width:0}
+    .ev-rail:before{content:"";position:absolute;left:9%;right:9%;top:50%;border-top:1px dashed var(--line)}
+    .ev-node{
+      position:relative;justify-self:center;display:flex;align-items:center;justify-content:center;
+      width:38px;height:38px;background:var(--accent,var(--lilac));border:1px solid var(--purple-deep);
+      color:var(--ink);font-size:19px;font-weight:800;line-height:1;
+      transition:background .3s ease,color .3s ease,border-color .3s ease
+    }
+    .ev-node:nth-child(1){--accent:var(--lilac)}
+    .ev-node:nth-child(2){--accent:var(--cream)}
+    .ev-node:nth-child(3){--accent:var(--mint)}
+    .ev-node:nth-child(4){--accent:color-mix(in srgb,var(--lilac) 62%,var(--card))}
+    .ev-pulse{position:absolute;left:12.5%;top:50%;width:7px;height:7px;background:var(--purple);translate:0 -50%;opacity:0;pointer-events:none}
+    .ev-cta{display:inline-flex;align-items:center;gap:9px;flex:none;font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--ink)}
+    .ev-hide{display:none}
+    html:not(.ev-collapsed) .ev-show{display:none}
+    html:not(.ev-collapsed) .ev-hide{display:inline}
+    .ev-chev{font-size:12px;color:var(--purple);transition:rotate .3s ease}
+    html:not(.ev-collapsed) .ev-chev{rotate:180deg}
+    html.ev-collapsed .ev-node{background:var(--card);border-color:var(--line);color:var(--muted)}
+
+    /* The panel collapses through the grid row rather than a measured height: no script owns the
+       size, so a Chinese font swap or a resize cannot leave a stale pixel height behind. */
+    .ev-panel{display:grid;grid-template-rows:1fr;transition:grid-template-rows .52s cubic-bezier(.4,.05,.2,1)}
+    html.ev-collapsed .ev-panel{grid-template-rows:0fr}
+    .ev-inner{min-height:0;overflow:hidden;display:flow-root}
+    html:not(.ev-collapsed) .ev-panel:not(.ev-busy) .ev-inner{overflow:visible}
+
+    .ev-acq .ev-node{animation:evNode .34s ease both;animation-delay:var(--stagger,0s)}
+    .ev-acq .ev-pulse{animation:evPulse 1.05s linear both}
+    .ev-acq .sense-card{animation:evCard .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:var(--stagger,0s)}
+    .ev-acq .sense-origin{animation:evCard .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:1.16s}
+    @keyframes evNode{
+      from{background:var(--card);border-color:var(--line);color:var(--muted)}
+      to{background:var(--accent,var(--lilac));border-color:var(--purple-deep);color:var(--ink)}
+    }
+    @keyframes evPulse{0%{left:12.5%;opacity:0}12%{opacity:1}88%{opacity:1}100%{left:87.5%;opacity:0}}
+    /* The reveal moves the standalone `translate`, never `transform`: the cards' hover lift is a
+       normal declaration, and an animation's final keyframe would outrank it. */
+    @keyframes evCard{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+    @media(max-width:640px){
+      .ev-chain{flex-wrap:wrap;gap:14px;padding:14px 16px}
+      .ev-cta{order:1;margin-left:auto}
+      .ev-rail{order:2;width:100%}
+      .ev-node{width:34px;height:34px;font-size:17px}
+    }
     html[data-theme="dark"] .process-card:nth-child(4){background:#3f3448}
     html[data-theme="dark"] .process-card p,
     html[data-theme="dark"] .process-card .mini,
@@ -767,6 +829,9 @@
           document.head.appendChild(link)
         })
       }
+      // Diagnostic Evidence ships collapsed until the reader opens it, so the section does
+      // not own the page. Resolved here so the DOM never paints in the wrong state.
+      if (saved('robodiag-evidence') !== 'open') root.classList.add('ev-collapsed')
       window.__robodiagLang = lang
     })()
   </script>
@@ -895,49 +960,68 @@
             </div>
             <div class="sense-kicker mono" data-i18n="senses.kicker">FROM OUTSIDE TO INSIDE</div>
           </div>
-          <div class="sense-grid">
-            <article class="sense-card">
-              <div class="sense-mark">
-                <svg class="sense-icon s-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.8 12S5.4 5.7 12 5.7 22.2 12 22.2 12 18.6 18.3 12 18.3 1.8 12 1.8 12Z"/><circle class="s-pupil" cx="12" cy="12" r="3.1"/></svg>
-                <span class="sense-glyph">望</span>
+          <button class="ev-chain" id="evChain" type="button" aria-expanded="true" aria-controls="evPanel">
+            <span class="ev-rail" aria-hidden="true">
+              <span class="ev-node">望</span>
+              <span class="ev-node">聞</span>
+              <span class="ev-node">問</span>
+              <span class="ev-node">切</span>
+              <span class="ev-pulse"></span>
+            </span>
+            <span class="ev-cta mono">
+              <span class="ev-show" data-i18n="senses.toggle.show">SHOW EVIDENCE</span>
+              <span class="ev-hide" data-i18n="senses.toggle.hide">HIDE EVIDENCE</span>
+              <span class="ev-chev" aria-hidden="true">▾</span>
+            </span>
+          </button>
+
+          <div class="ev-panel" id="evPanel">
+            <div class="ev-inner">
+              <div class="sense-grid">
+                <article class="sense-card">
+                  <div class="sense-mark">
+                    <svg class="sense-icon s-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.8 12S5.4 5.7 12 5.7 22.2 12 22.2 12 18.6 18.3 12 18.3 1.8 12 1.8 12Z"/><circle class="s-pupil" cx="12" cy="12" r="3.1"/></svg>
+                    <span class="sense-glyph">望</span>
+                  </div>
+                  <small data-i18n="senses.see.en">SEE</small>
+                  <h3 data-i18n="senses.see.title">Observe how it moves.</h3>
+                  <p data-i18n="senses.see.desc">Use vision to inspect posture, gait symmetry, alignment and visible assembly abnormalities.</p>
+                  <div class="sense-signals mono" data-i18n="senses.see.signals">POSE · GAIT · ALIGNMENT · VISION</div>
+                </article>
+                <article class="sense-card">
+                  <div class="sense-mark">
+                    <svg class="sense-icon s-ear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 8.7a5.8 5.8 0 1 1 11.6 0c0 3.1-2.2 4.2-3.5 5.4-1.1.9-1.5 1.7-1.5 3a2.6 2.6 0 0 1-5.2 0"/><path d="M14.6 8.7a2.6 2.6 0 0 0-5.2 0v.9a1.9 1.9 0 1 1 0 3.7"/><path class="s-ripple r1" d="M19.7 8.8a5 5 0 0 1 0 6.4"/><path class="s-ripple r2" d="M21.3 7.2a8 8 0 0 1 0 9.6"/></svg>
+                    <span class="sense-glyph">聞</span>
+                  </div>
+                  <small data-i18n="senses.listen.en">LISTEN</small>
+                  <h3 data-i18n="senses.listen.title">Hear what motion reveals.</h3>
+                  <p data-i18n="senses.listen.desc">Acoustic and vibration signatures can expose friction, impact and abnormal mechanical behavior.</p>
+                  <div class="sense-signals mono" data-i18n="senses.listen.signals">ACOUSTIC · VIBRATION · NVH</div>
+                </article>
+                <article class="sense-card">
+                  <div class="sense-mark">
+                    <svg class="sense-icon s-ask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15.2a2 2 0 0 1-2 2H8l-5 3.8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><path class="s-qmark" d="M10.2 8.6a1.9 1.9 0 0 1 3.7.6c0 1.3-1.8 1.6-1.8 2.8"/><circle class="s-qdot" cx="12" cy="14.4" r=".85" fill="currentColor" stroke="none"/></svg>
+                    <span class="sense-glyph">問</span>
+                  </div>
+                  <small data-i18n="senses.ask.en">ASK</small>
+                  <h3 data-i18n="senses.ask.title">Read what the robot reports.</h3>
+                  <p data-i18n="senses.ask.desc">Read joint telemetry, temperatures, currents, logs, fault memory and test history from inside the robot.</p>
+                  <div class="sense-signals mono" data-i18n="senses.ask.signals">TORQUE · CURRENT · TEMP · LOGS</div>
+                </article>
+                <article class="sense-card">
+                  <div class="sense-mark">
+                    <svg class="sense-icon s-probe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22" opacity=".4"/><path class="s-trace" d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22"/></svg>
+                    <span class="sense-glyph">切</span>
+                  </div>
+                  <small data-i18n="senses.probe.en">PROBE</small>
+                  <h3 data-i18n="senses.probe.title">Measure its physical response.</h3>
+                  <p data-i18n="senses.probe.desc">Measure force, torque, contact and vibration while the robot runs controlled tests.</p>
+                  <div class="sense-signals mono" data-i18n="senses.probe.signals">FORCE · TORQUE · CONTACT · VIBRATION</div>
+                </article>
               </div>
-              <small data-i18n="senses.see.en">SEE</small>
-              <h3 data-i18n="senses.see.title">Observe how it moves.</h3>
-              <p data-i18n="senses.see.desc">Use vision to inspect posture, gait symmetry, alignment and visible assembly abnormalities.</p>
-              <div class="sense-signals mono" data-i18n="senses.see.signals">POSE · GAIT · ALIGNMENT · VISION</div>
-            </article>
-            <article class="sense-card">
-              <div class="sense-mark">
-                <svg class="sense-icon s-ear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 8.7a5.8 5.8 0 1 1 11.6 0c0 3.1-2.2 4.2-3.5 5.4-1.1.9-1.5 1.7-1.5 3a2.6 2.6 0 0 1-5.2 0"/><path d="M14.6 8.7a2.6 2.6 0 0 0-5.2 0v.9a1.9 1.9 0 1 1 0 3.7"/><path class="s-ripple r1" d="M19.7 8.8a5 5 0 0 1 0 6.4"/><path class="s-ripple r2" d="M21.3 7.2a8 8 0 0 1 0 9.6"/></svg>
-                <span class="sense-glyph">聞</span>
-              </div>
-              <small data-i18n="senses.listen.en">LISTEN</small>
-              <h3 data-i18n="senses.listen.title">Hear what motion reveals.</h3>
-              <p data-i18n="senses.listen.desc">Acoustic and vibration signatures can expose friction, impact and abnormal mechanical behavior.</p>
-              <div class="sense-signals mono" data-i18n="senses.listen.signals">ACOUSTIC · VIBRATION · NVH</div>
-            </article>
-            <article class="sense-card">
-              <div class="sense-mark">
-                <svg class="sense-icon s-ask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15.2a2 2 0 0 1-2 2H8l-5 3.8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><path class="s-qmark" d="M10.2 8.6a1.9 1.9 0 0 1 3.7.6c0 1.3-1.8 1.6-1.8 2.8"/><circle class="s-qdot" cx="12" cy="14.4" r=".85" fill="currentColor" stroke="none"/></svg>
-                <span class="sense-glyph">問</span>
-              </div>
-              <small data-i18n="senses.ask.en">ASK</small>
-              <h3 data-i18n="senses.ask.title">Read what the robot reports.</h3>
-              <p data-i18n="senses.ask.desc">Read joint telemetry, temperatures, currents, logs, fault memory and test history from inside the robot.</p>
-              <div class="sense-signals mono" data-i18n="senses.ask.signals">TORQUE · CURRENT · TEMP · LOGS</div>
-            </article>
-            <article class="sense-card">
-              <div class="sense-mark">
-                <svg class="sense-icon s-probe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22" opacity=".4"/><path class="s-trace" d="M2 12h3.6l2.6-6.5 3.6 13 2.6-6.5H22"/></svg>
-                <span class="sense-glyph">切</span>
-              </div>
-              <small data-i18n="senses.probe.en">PROBE</small>
-              <h3 data-i18n="senses.probe.title">Measure its physical response.</h3>
-              <p data-i18n="senses.probe.desc">Measure force, torque, contact and vibration while the robot runs controlled tests.</p>
-              <div class="sense-signals mono" data-i18n="senses.probe.signals">FORCE · TORQUE · CONTACT · VIBRATION</div>
-            </article>
+              <p class="sense-origin" data-i18n-html="senses.origin">The name comes from <em>望聞問切</em> — the four diagnostic methods of traditional Chinese medicine, set out in classical Chinese texts more than two thousand years ago: observe the patient, listen to the breath, ask about the symptoms, feel the pulse. Robodiag keeps the same outside-in order — watch how the robot moves, listen to how it sounds, ask what it reports, then measure how it responds.</p>
+            </div>
           </div>
-          <p class="sense-origin" data-i18n-html="senses.origin">The name comes from <em>望聞問切</em> — the four diagnostic methods of traditional Chinese medicine, set out in classical Chinese texts more than two thousand years ago: observe the patient, listen to the breath, ask about the symptoms, feel the pulse. Robodiag keeps the same outside-in order — watch how the robot moves, listen to how it sounds, ask what it reports, then measure how it responds.</p>
         </div>
       </section>
 
@@ -1211,6 +1295,7 @@
         "senses.desc":"The Observe step is more than reading one sensor. Robodiag collects four kinds of evidence: visual behavior, sound, internal telemetry and physical response.",
         "senses.kicker":"FROM OUTSIDE TO INSIDE",
         "senses.origin":"The name comes from <em>望聞問切</em> — the four diagnostic methods of traditional Chinese medicine, set out in classical Chinese texts more than two thousand years ago: observe the patient, listen to the breath, ask about the symptoms, feel the pulse. Robodiag keeps the same outside-in order — watch how the robot moves, listen to how it sounds, ask what it reports, then measure how it responds.",
+        "senses.toggle.show":"SHOW EVIDENCE","senses.toggle.hide":"HIDE EVIDENCE",
         "senses.see.en":"SEE","senses.see.title":"Observe how it moves.","senses.see.desc":"Use vision to inspect posture, gait symmetry, alignment and visible assembly abnormalities.","senses.see.signals":"POSE · GAIT · ALIGNMENT · VISION",
         "senses.listen.en":"LISTEN","senses.listen.title":"Hear what motion reveals.","senses.listen.desc":"Acoustic and vibration signatures can expose friction, impact and abnormal mechanical behavior.","senses.listen.signals":"ACOUSTIC · VIBRATION · NVH",
         "senses.ask.en":"ASK","senses.ask.title":"Read what the robot reports.","senses.ask.desc":"Read joint telemetry, temperatures, currents, logs, fault memory and test history from inside the robot.","senses.ask.signals":"TORQUE · CURRENT · TEMP · LOGS",
@@ -1258,6 +1343,7 @@
         "senses.listen.en":"聞 / LISTEN","senses.listen.title":"听出运动里的异常。","senses.listen.desc":"从声音和振动的特征里，发现摩擦、冲击等异常机械行为。","senses.listen.signals":"声学 · 振动 · NVH",
         "senses.ask.en":"問 / ASK","senses.ask.title":"读取机器人自己报告的信息。","senses.ask.desc":"读取关节遥测、温度、电流、日志、故障记忆，以及历史测试记录。","senses.ask.signals":"扭矩 · 电流 · 温度 · 日志",
         "senses.probe.en":"切 / PROBE","senses.probe.title":"测它的物理响应。","senses.probe.desc":"在受控测试中测量力、扭矩、接触和振动，观察机器人身体真正的响应。","senses.probe.signals":"力 · 扭矩 · 接触 · 振动",
+        "senses.toggle.show":"展开证据","senses.toggle.hide":"收起证据",
         "why.eyebrow":"为什么是 Robodiag","why.title":"机器人越来越聪明，<br/>测试却还<em>很零散。</em>",
         "why.desc":"当机器人从原型走向量产，测试也必须变得可重复、可量化、可追溯。",
         "why.today":"现在","why.with":"用了 Robodiag",
@@ -1415,6 +1501,49 @@
           heroVideo.play().catch(() => {})
         }
       }
+
+    // Diagnostic Evidence: the chain rail is the control for the four senses below it. The state
+    // the section starts in was already resolved by the head script, so this only runs changes.
+    const evidenceChain = document.getElementById('evChain')
+    const evidencePanel = document.getElementById('evPanel')
+    if (evidenceChain && evidencePanel) {
+      const evidenceBox = evidenceChain.closest('.four-senses')
+      const evidenceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+      const evidenceOpen = () => !document.documentElement.classList.contains('ev-collapsed')
+
+      const setEvidence = (open, animate) => {
+        document.documentElement.classList.toggle('ev-collapsed', !open)
+        evidenceChain.setAttribute('aria-expanded', String(open))
+        // A collapsed panel must leave the tab order and the accessibility tree as well as the page.
+        evidencePanel.toggleAttribute('inert', !open)
+        try { localStorage.setItem('robodiag-evidence', open ? 'open' : 'shut') } catch (error) {}
+        evidenceBox.classList.remove('ev-acq')
+        clearTimeout(evidencePanel.__evTimer)
+        if (!animate || evidenceMotion.matches) {
+          evidencePanel.classList.remove('ev-busy')
+          return
+        }
+        // Clip the row while it grows or shrinks; once it has settled the cards may overflow
+        // again, or their hover lift and pixel shadow would be cut off against the panel edge.
+        evidencePanel.classList.add('ev-busy')
+        if (open) evidenceBox.classList.add('ev-acq')
+        evidencePanel.__evTimer = setTimeout(() => evidencePanel.classList.remove('ev-busy'), 700)
+      }
+
+      setEvidence(evidenceOpen(), false)
+      evidenceChain.addEventListener('click', () => setEvidence(!evidenceOpen(), true))
+
+      // A reader who left it open should still see the chain acquire when they first reach it.
+      let evidenceSeen = false
+      new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || evidenceSeen) return
+          evidenceSeen = true
+          if (evidenceOpen() && !evidenceMotion.matches) evidenceBox.classList.add('ev-acq')
+          observer.disconnect()
+        })
+      }, { threshold: 0.2 }).observe(evidenceBox)
+    }
       syncHeroMotion()
       motionQuery.addEventListener('change', syncHeroMotion)
     }
