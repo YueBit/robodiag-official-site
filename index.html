@@ -238,7 +238,7 @@
     /* Respect a reduced-motion preference: hold the poster instead of playing the film. */
     @media (prefers-reduced-motion: reduce){
       .hero-video{display:none}
-      .hero-media{background:var(--hero-poster, url("https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand-poster.jpg")) center/cover no-repeat}
+      .hero-media{background:var(--hero-poster, url("https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand-poster.jpg?v=2")) center/cover no-repeat}
     }
 
     .mini-pulse{display:inline-block;width:7px;height:7px;background:#73a68b;border-radius:0;margin-right:6px;animation:pulse 1.8s steps(2,end) infinite}
@@ -914,7 +914,7 @@
           <div class="pixel-spark spark-a">✦</div><div class="pixel-spark spark-b">◆</div>
           <div class="hero-media">
             <video class="hero-video" autoplay muted loop playsinline preload="metadata"
-                   poster="https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand-poster.jpg"
+                   poster="https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand-poster.jpg?v=2"
                    aria-label="Robodiag brand film: robots on a test line, then the lines every robot deserves a reliable start, and Robodiag ensures the robots are ready for the real world.">
               <source src="https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand.mp4" type="video/mp4" />
             </video>
@@ -1513,7 +1513,10 @@
     // With scripting off the markup's OSS source stands, exactly as before.
     const heroSource = document.querySelector('.hero-video source')
     if (heroSource) {
-      const heroPoster = 'robodiag-brand-poster.jpg'
+      // The poster was replaced with the film's own frame at 00:00.64, so the URL carries a
+      // version: for the probe it forces a fresh race instead of answering from the cache, and
+      // for the cover it keeps a previously cached copy from sticking around.
+      const heroPoster = 'robodiag-brand-poster.jpg?v=2'
       const probes = ['https://robodiag.oss-cn-hangzhou.aliyuncs.com/', ''].map((base) => {
         const img = new Image()
         const probe = new Promise((resolve, reject) => {
