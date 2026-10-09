@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service." />
-  <title>Robodiag — Know your robot before it fails.</title>
+  <title>Robodiag</title>
   <link rel="preload" href="fonts/ubuntu-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/ubuntu-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="icon" href="favicon.ico?v=7" sizes="any">
@@ -1441,9 +1441,8 @@
       langToggle.querySelector('.lang-label').textContent = lang === 'zh' ? 'EN' : '中文'
       langToggle.querySelector('.lang-short').textContent = lang === 'zh' ? 'EN' : '中'
       langToggle.setAttribute('aria-label', lang === 'zh' ? 'Switch to English' : '切换到中文')
-      document.title = lang === 'zh'
-        ? 'Robodiag — 在故障发生之前，先看懂你的机器人。'
-        : 'Robodiag — Know your robot before it fails.'
+      // The tab shows the brand alone, in both languages: a translated subtitle there reads as
+      // page furniture among a row of tabs, and the static <title> already says exactly this.
       if (persist) localStorage.setItem('robodiag-lang', lang)
       brandifyRobodiag()
     }
