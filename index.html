@@ -149,7 +149,6 @@
     .lang-short{display:none;line-height:1}
     html[data-theme="dark"] .button-dark{color:#211c25}
     html[data-theme="dark"] .button-light{background:var(--card);color:var(--ink)}
-    html[data-theme="dark"] .telemetry-chip{background:#221e27;box-shadow:4px 4px 0 #453650;color:var(--ink)}
     html[data-theme="dark"] .why-box,
     html[data-theme="dark"] .product-card,
     html[data-theme="dark"] .use-card,
@@ -227,18 +226,6 @@
       .hero-media{background:url("robodiag-brand-poster.jpg?v=1") center/cover no-repeat}
     }
 
-    .telemetry-chip{
-      position:absolute;background:var(--card);border:1px solid var(--line);padding:9px 12px;font-size:9px;
-      font-weight:900;letter-spacing:.09em;box-shadow:4px 4px 0 #ded5e1;z-index:3;
-    }
-    .chip-top{right:-14px;top:-16px}
-    .chip-vision{left:-14px;top:-16px}
-    .chip-acoustic{right:-14px;bottom:-16px}
-    .chip-torque{left:-14px;bottom:-16px}
-    .chip-bottom{left:50%;bottom:-54px;transform:translateX(-50%)}
-
-    .chip-bottom strong{color:#6b9c82;margin-left:10px}
-    .chip-bottom span{color:var(--purple);font-size:15px;margin-left:8px}
     .mini-pulse{display:inline-block;width:7px;height:7px;background:#73a68b;border-radius:0;margin-right:6px;animation:pulse 1.8s steps(2,end) infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
@@ -679,7 +666,7 @@
       .mobile-nav a:last-child{border-bottom:0}
       .mobile-nav a:hover{color:var(--purple)}
       .hero{grid-template-columns:1fr;padding-top:30px;gap:22px}
-      .hero-art{height:auto;padding:34px 0 62px;order:-1}
+      .hero-art{height:auto;padding:30px 0 18px;order:-1}
       .hero-media{max-width:640px;margin:0 auto}
       .process{grid-template-columns:1fr 1fr}
       .products,.use-grid,.why-wrap{grid-template-columns:1fr}
@@ -706,15 +693,9 @@
       .hero-lede{font-size:15px;line-height:1.8}
       .hero-actions{gap:14px;margin-top:26px}
 
-      .hero-art{height:auto;padding:22px 0 56px;margin:0;overflow:visible}
+      .hero-art{height:auto;padding:22px 0 14px;margin:0;overflow:visible}
       .orbit,.pixel-spark{display:none}
       .hero-media{box-shadow:8px 10px 0 var(--lilac)}
-      .telemetry-chip{padding:7px 9px;font-size:8px;box-shadow:3px 3px 0 #ded5e1;white-space:nowrap}
-      .chip-top{right:-8px;top:-13px}
-      .chip-vision{left:-8px;top:-13px}
-      .chip-acoustic{right:-8px;bottom:-13px}
-      .chip-torque{left:-8px;bottom:-13px}
-      .chip-bottom{left:50%;bottom:-46px;transform:translateX(-50%)}
 
       section{padding:60px 0}
       .section-intro h2,.dark h2,.cta h2{font-size:clamp(28px,8.5vw,40px);letter-spacing:-.06em;margin:0 0 16px}
@@ -744,7 +725,6 @@
 
     @media (max-width: 380px){
       .hero-media{box-shadow:6px 8px 0 var(--lilac)}
-      .telemetry-chip{font-size:7px;padding:6px 7px;box-shadow:2px 2px 0 #ded5e1}
       .hero-actions{align-items:stretch}
       .hero-actions .button{justify-content:space-between;width:100%}
       .hero-actions .text-link{padding:8px 0}
@@ -841,11 +821,6 @@
                    aria-label="Robodiag brand film: robots on a test line, then the lines every robot deserves a reliable start, and Robodiag ensures the robots are ready for the real world.">
               <source src="robodiag-brand.mp4?v=1" type="video/mp4" />
             </video>
-            <div class="telemetry-chip chip-top"><span class="mini-pulse"></span> <span data-i18n="robot.telemetry">LIVE TELEMETRY</span> <b>●</b></div>
-            <div class="telemetry-chip chip-bottom"><span data-i18n="robot.health">HEALTH</span> <strong>98%</strong> <span>↗</span></div>
-            <div class="telemetry-chip chip-vision"><span class="mini-pulse"></span> <span data-i18n="robot.vision">VISION</span> <b style="color:var(--purple);margin-left:8px">◉</b></div>
-            <div class="telemetry-chip chip-acoustic"><span class="mini-pulse"></span> <span data-i18n="robot.acoustic">ACOUSTIC</span> <strong style="margin-left:8px">48kHz</strong></div>
-            <div class="telemetry-chip chip-torque"><span class="mini-pulse"></span> <span data-i18n="robot.torque">TORQUE</span> <strong style="color:#6b9c82;margin-left:8px">OK</strong></div>
           </div>
         </div>
       </section>
@@ -1206,7 +1181,6 @@
         "hero.title":"Know your robot. <em>Know what’s <mark>wrong.</mark></em>",
         "hero.lede":"<p>From production to field operation, Robodiag continuously understands your robot’s condition, detects abnormalities, identifies root causes, and helps problems get found and fixed faster.</p>",
         "hero.how":"See How It Works",
-        "robot.telemetry":"LIVE TELEMETRY","robot.faults":"FAULTS","robot.health":"HEALTH","robot.vision":"VISION","robot.acoustic":"ACOUSTIC","robot.torque":"TORQUE",
         "ticker":"HEALTH MONITORING <i>✦</i> END-OF-LINE TESTING <i>✦</i> FAULT DETECTION <i>✦</i> ROOT CAUSE ANALYSIS <i>✦</i> REPAIR INTELLIGENCE <i>✦</i>",
         "method.eyebrow":"Core Method",
         "method.title":"Command → Observe → <em>Compare → Diagnose.</em>",
@@ -1251,7 +1225,6 @@
         "hero.title":"懂你的机器人，<em>更懂它哪里<mark>不对</mark>。</em>",
         "hero.lede":"<p>从生产下线到现场运维，Robodiag 持续理解机器人的状态，发现异常、定位原因，让问题更快被看见和解决。</p>",
         "hero.how":"了解工作原理",
-        "robot.telemetry":"实时遥测","robot.faults":"故障","robot.health":"健康度","robot.vision":"视觉检测","robot.acoustic":"声学","robot.torque":"扭矩",
         "ticker":"健康监测 <i>✦</i> 下线测试 <i>✦</i> 故障检测 <i>✦</i> 根因分析 <i>✦</i> 智能维修 <i>✦</i>",
         "method.eyebrow":"核心方法",
         "method.title":"指令 → 观测 → <em>对比 → 诊断。</em>",
