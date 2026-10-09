@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service." />
   <title>Robodiag — Know your robot before it fails.</title>
-  <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/ubuntu-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/ubuntu-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="icon" href="favicon.ico?v=6" sizes="any">
   <link rel="icon" type="image/png" href="favicon-32.png?v=6" sizes="32x32">
   <link rel="icon" type="image/png" href="favicon-192.png?v=6" sizes="192x192">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=6">
   <style>
     @font-face{font-family:Comfortaa;src:url('Comfortaa.ttf') format('truetype');font-weight:100 900;font-style:normal}
-    @font-face{font-family:Inter;src:url('fonts/inter-latin-wght-normal.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+    @font-face{font-family:Ubuntu;src:url('fonts/ubuntu-latin-400-normal.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+    @font-face{font-family:Ubuntu;src:url('fonts/ubuntu-latin-700-normal.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap;unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 
     /* The head script resolves the language before paint, but the dictionary runs at the
        end of <body>. Keep the English source copy off screen until it is applied; the
@@ -67,11 +69,11 @@
       margin:0;
       background:var(--paper);
       color:var(--ink);
-      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      font-family:Ubuntu,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
       line-height:1.6;
       overflow-x:hidden;
     }
-    html[lang="zh-CN"] body{font-family:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    html[lang="zh-CN"] body{font-family:Ubuntu,"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     html[lang="zh-CN"] .hero h1,
     html[lang="zh-CN"] .section-intro h2,
     html[lang="zh-CN"] .dark h2,
