@@ -10,7 +10,6 @@ nothing here depends on a CORS rule or an external CDN staying up.
 | `puhuiti-regular.woff2` | Alibaba PuHuiTi (3 55 Regular) | 400-500 | 376 Chinese characters |
 | `puhuiti-bold.woff2` | Alibaba PuHuiTi (3 85 Bold) | 600-900 | the same 376 |
 | `ximaiti-regular.woff2` | 字制区喜脉体 (FontQu Smile) | 400-900 | the same 376, headings only |
-| `oswald-latin-var.woff2` | Oswald | 200-700 (variable) | Latin subset, the same Google range as Ubuntu |
 
 `index.html` stacks them per language: `html[lang="zh-CN"] body` puts Ubuntu first for Latin and
 digits, Alibaba PuHuiTi second for Chinese, then PingFang SC / Microsoft YaHei as the system
@@ -18,23 +17,10 @@ fallbacks. `h1`-`h4` insert 喜脉体 ahead of PuHuiTi, so Chinese headings take
 while body copy stays on PuHuiTi; the Latin inside those headings still comes from Ubuntu, since
 喜脉体 has no Latin at all. The English page does not download the Chinese faces.
 
-The English page adds one more layer: `[lang="en"] h1`-`h4` and `[lang="en"] .brand-word`
-put Oswald ahead of Ubuntu, so the display face draws every English heading and every
-"Robodiag" — the wordmark in the header and the mentions inside English body copy alike,
-since the script wraps them all in `.brand-word`. The Chinese page is untouched and never
-requests the file. That heading rule is declared *before* `.four-senses h2` deliberately:
-both selectors are (0,1,1), so the later rule stays in charge of the classical headline and
-keeps all four of its glyphs in one face, exactly as on the Chinese page.
-
 喜脉体 is declared across the whole `400 900` range although it has a single weight. That is
 deliberate: a static face declared across the range the page asks for is used exactly as drawn,
 whereas a face declared at one weight would leave the browser synthesising a faux bold for the
 800/900 headings — which on a condensed CJK face fills in the counters.
-
-Oswald needs no such treatment, because it really is a variable face (`wght 200-700`) and its
-`@font-face` declares exactly that: the page's 800/900 headings clamp to 700, and a variable
-face is not given synthesised bold to reach a weight it does not carry. Verified by rendering
-the same word at 700 and at 900 — identical boxes, so nothing is being faked.
 
 ## Why the Chinese faces are subsets
 
@@ -72,12 +58,6 @@ Two ways to put that heading in 喜脉体 as well, if wanted:
 
 * **Ubuntu** — the latin subsets as served by Google Fonts. Licensed under the Ubuntu Font
   Licence 1.0, kept here as `Ubuntu-LICENSE.txt`.
-* **Oswald** — the latin subset as served by Google Fonts, in the variable cut (`wght
-  200-700`), kept here as `oswald-latin-var.woff2`. Licensed under the SIL Open Font License
-  1.1, kept here as `Oswald-LICENSE.txt`, which permits commercial use and embedding. One
-  caveat is baked into the CSS: U+2192 (→) is absent from the family altogether, not merely
-  from this subset, so the arrow in the "Command → Observe → Compare → Diagnose" headline is
-  painted by the system sans fallback — exactly as it was before Oswald arrived.
 * **Alibaba PuHuiTi 3** — downloaded from Alibaba's own font CDN, which is the download target
   of the official site (fonts.alibabadesign.com) and sits behind a Referer ACL:
 
