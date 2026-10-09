@@ -238,7 +238,7 @@
     /* Respect a reduced-motion preference: hold the poster instead of playing the film. */
     @media (prefers-reduced-motion: reduce){
       .hero-video{display:none}
-      .hero-media{background:url("https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand-poster.jpg") center/cover no-repeat}
+      .hero-media{background:var(--hero-poster, url("https://robodiag.oss-cn-hangzhou.aliyuncs.com/robodiag-brand-poster.jpg")) center/cover no-repeat}
     }
 
     .mini-pulse{display:inline-block;width:7px;height:7px;background:#73a68b;border-radius:0;margin-right:6px;animation:pulse 1.8s steps(2,end) infinite}
@@ -1504,6 +1504,37 @@
       const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
       applyTheme(next, true)
     })
+    // The film and its poster exist twice: in this repository, which GitHub Pages serves fast
+    // outside mainland China, and on Aliyun OSS in Hangzhou, which is fast inside it. Both are
+    // asked for the same poster and the first to deliver it wins. The probe is the poster itself
+    // on purpose - a latency probe would be fooled by GitHub's throttling to Chinese visitors,
+    // which slows the bytes but not the handshake - and the poster is needed either way, so the
+    // race costs nothing and the winner's bytes are already cached when the poster is set.
+    // With scripting off the markup's OSS source stands, exactly as before.
+    const heroSource = document.querySelector('.hero-video source')
+    if (heroSource) {
+      const heroPoster = 'robodiag-brand-poster.jpg'
+      const probes = ['https://robodiag.oss-cn-hangzhou.aliyuncs.com/', ''].map((base) => {
+        const img = new Image()
+        const probe = new Promise((resolve, reject) => {
+          img.onload = () => resolve(base)
+          img.onerror = reject
+        })
+        img.src = base + heroPoster
+        return { base, img, probe }
+      })
+      Promise.race(probes.map((p) => p.probe)).then((winner) => {
+        // Release the loser, so a Chinese visitor is not spending throttled bandwidth on the
+        // copy it is not going to use.
+        probes.forEach((p) => { if (p.base !== winner) p.img.src = '' })
+        heroSource.src = winner + 'robodiag-brand.mp4'
+        const video = heroSource.closest('video')
+        video.poster = winner + heroPoster
+        document.documentElement.style.setProperty('--hero-poster', 'url("' + video.poster + '")')
+        video.load()
+      }).catch(() => {})
+    }
+
     // The hero film is decorative motion. When a visitor asks for less motion the CSS holds the
     // poster frame instead, so stop the fetch rather than playing a hidden video.
     const heroVideo = document.querySelector('.hero-video')
