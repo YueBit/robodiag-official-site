@@ -40,30 +40,49 @@ subset() { # ttf out weight-decl
 subset "$(fetch 55-Regular | tail -1)" fonts/puhuiti-regular.woff2
 subset "$(fetch 85-Bold    | tail -1)" fonts/puhuiti-bold.woff2
 
-# 3. Rewrite the unicode-range of the two PuHuiTi @font-face rules so the CSS keeps
-#    describing the files truthfully.
+# 2b. 字制区喜脉体 — the Chinese heading face, one weight so one file. 猫啃网 distributes it
+#     with the author's permission and hosts the package itself; the author's own channel is a
+#     WeChat account, and their site has closed.
+XM_REL="https://www.maoken.com/freefonts/8918.html"
+XM_ZIP="$WORK/maoken-ximaiti.zip"
+XM_URL="https://oss.maoken.com/%E7%8C%AB%E5%95%83%E5%AD%97%E4%BD%93/%E4%B8%AD%E5%9B%BD%E5%A4%A7%E9%99%86/%E5%AD%97%E5%88%B6%E5%8C%BA%E5%96%9C%E8%84%89%E4%BD%932.000_%E7%8C%AB%E5%95%83%E7%BD%91.zip"
+[ -s "$XM_ZIP" ] || curl -fL --max-time 900 -A "Mozilla/5.0" -e "$XM_REL" -o "$XM_ZIP" "$XM_URL"
+rm -rf "$WORK/ximai" && unzip -o -q "$XM_ZIP" -d "$WORK/ximai"
+XM_TTF="$(find "$WORK/ximai" -name '字制区喜脉体.ttf' | head -1)"
+[ -n "$XM_TTF" ] || { echo "喜脉体.ttf not found in $XM_ZIP" >&2; exit 1; }
+subset "$XM_TTF" fonts/ximaiti-regular.woff2
+
+# 3. Rewrite the unicode-range of the Chinese @font-face rules so the CSS keeps describing the
+#    files truthfully. PuHuiTi's two weights share one range; 喜脉体 has its own.
 python3 - <<'PY'
 import io, re
 from fontTools.ttLib import TTFont
 
-codes = set()
-for f in ("fonts/puhuiti-regular.woff2", "fonts/puhuiti-bold.woff2"):
-    codes |= {c for c in TTFont(f, lazy=True).getBestCmap() if c > 0x2000}  # Ubuntu owns Latin
-codes = sorted(codes)
-ranges, start, prev = [], codes[0], codes[0]
-for c in codes[1:]:
-    if c == prev + 1:
-        prev = c
-        continue
-    ranges.append((start, prev)); start = prev = c
-ranges.append((start, prev))
-ur = ",".join(f"U+{a:X}" if a == b else f"U+{a:X}-{b:X}" for a, b in ranges)
+def ranges_for(files):
+    codes = set()
+    for f in files:
+        codes |= {c for c in TTFont(f, lazy=True).getBestCmap() if c > 0x2000}  # Ubuntu owns Latin
+    codes = sorted(codes)
+    out, start, prev = [], codes[0], codes[0]
+    for c in codes[1:]:
+        if c == prev + 1:
+            prev = c
+            continue
+        out.append((start, prev)); start = prev = c
+    out.append((start, prev))
+    return ",".join(f"U+{a:X}" if a == b else f"U+{a:X}-{b:X}" for a, b in out)
 
 html = io.open("index.html", encoding="utf-8").read()
-new, n = re.subn(r"(?<=puhuiti-(?:regular|bold)\.woff2'\)) format\('woff2'\)[^}]*?unicode-range:)[^}]*",
-                 lambda m: m.group(1) + ur, html)
-io.open("index.html", "w", encoding="utf-8").write(new)
-print(f"  unicode-range updated on {n} @font-face rules ({len(ur)} chars)")
+for pattern, files in [
+    (r"(puhuiti-(?:regular|bold)\.woff2'\) format\('woff2'\)[^}]*?unicode-range:)[^}]*",
+     ["fonts/puhuiti-regular.woff2", "fonts/puhuiti-bold.woff2"]),
+    (r"(ximaiti-regular\.woff2'\) format\('woff2'\)[^}]*?unicode-range:)[^}]*",
+     ["fonts/ximaiti-regular.woff2"]),
+]:
+    ur = ranges_for(files)
+    html, n = re.subn(pattern, lambda m: m.group(1) + ur, html)
+    print(f"  unicode-range updated on {n} rule(s) for {files[0].split('/')[-1]} ({len(ur)} chars)")
+io.open("index.html", "w", encoding="utf-8").write(html)
 PY
 
 echo "Done. Review the diff, then commit fonts/*.woff2 and index.html."
