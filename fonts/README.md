@@ -101,8 +101,3 @@ Two ways to put that heading in 喜脉体 as well, if wanted:
   hold to the strictest reading, drop the subset, keep the `.ttf` out of the repo, and leave
   Chinese headings on the PuHuiTi / system fallbacks.
 
-## Unreferenced files
-
-`inter-latin-wght-normal.woff2` (48 KB) and `../Comfortaa.ttf` (204 KB) are no longer referenced
-by anything since the Ubuntu switch; they are kept only so that change can be reverted in one
-commit, and no visitor downloads them.
