@@ -869,6 +869,73 @@
       window.__robodiagLang = lang
     })()
   </script>
+  <!-- ── Crawlers and link previews ──────────────────────────────────────────
+       One document, one canonical URL: the language is chosen in the browser, not by
+       URL, so there is no hreflang set to declare and each language cannot be indexed
+       on its own until the copy gets per-language paths. The Open Graph title carries
+       the topic the static <title> deliberately leaves out. -->
+  <link rel="canonical" href="https://robodiag.cn/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Robodiag" />
+  <meta property="og:url" content="https://robodiag.cn/" />
+  <meta property="og:title" content="Robodiag — robot diagnostics and health testing" />
+  <meta property="og:description" content="Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service." />
+  <meta property="og:image" content="https://robodiag.cn/robodiag-brand-poster.jpg" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="720" />
+  <meta property="og:locale" content="en" />
+  <meta property="og:locale:alternate" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Robodiag — robot diagnostics and health testing" />
+  <meta name="twitter:description" content="Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service." />
+  <meta name="twitter:image" content="https://robodiag.cn/robodiag-brand-poster.jpg" />
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://robodiag.cn/#organization",
+      "name": "Robodiag",
+      "url": "https://robodiag.cn/",
+      "logo": "https://robodiag.cn/robodiag-mark.png",
+      "email": "never84@icloud.com",
+      "sameAs": [
+        "https://github.com/YueBit",
+        "https://github.com/YueBit/robodiag-harness"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://robodiag.cn/#website",
+      "url": "https://robodiag.cn/",
+      "name": "Robodiag",
+      "inLanguage": [
+        "en",
+        "zh-CN"
+      ],
+      "publisher": {
+        "@id": "https://robodiag.cn/#organization"
+      }
+    },
+    {
+      "@type": "Service",
+      "@id": "https://robodiag.cn/#service",
+      "name": "Robot diagnostics and health testing",
+      "serviceType": "Robot diagnostics",
+      "provider": {
+        "@id": "https://robodiag.cn/#organization"
+      },
+      "areaServed": "Worldwide",
+      "availableLanguage": [
+        "en",
+        "zh-CN"
+      ],
+      "description": "Robodiag helps teams test robot health with active excitation, multimodal sensing, health baselines and evidence-backed diagnosis from manufacturing to field service."
+    }
+  ]
+}
+  </script>
 </head>
 <body>
   <div class="pixel-grid" aria-hidden="true"></div>
