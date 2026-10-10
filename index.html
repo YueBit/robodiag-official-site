@@ -117,11 +117,11 @@
       -webkit-backdrop-filter:blur(14px);
     }
     .brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:-.05em}
-    .brand-word{font-family:Ubuntu,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-weight:700;letter-spacing:-.02em}
-    /* The brand name is a mark rather than copy, so on the English page it takes the display
-       face too - the header wordmark and every mention the script wraps in this class. The
-       Chinese page keeps Ubuntu for the same word, where it sits inside Chinese copy. */
-    [lang="en"] .brand-word{font-family:XiMaiTi,Ubuntu,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+    /* The brand name is a mark rather than copy, so it takes the display face in both
+       languages - the header wordmark and every mention the script wraps in this class. The
+       face carries its own designed Latin, so the word reads the same on the Chinese page as
+       on the English one; Ubuntu stays behind it for anything the subset does not hold. */
+    .brand-word{font-family:XiMaiTi,Ubuntu,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-weight:700;letter-spacing:-.02em}
     .brand-mark{
       /* The mark is wider than it is tall (212x104 native), so it is sized by HEIGHT and
          takes its own width - never a fixed square, which would squash the rings. */
