@@ -539,8 +539,17 @@
 
     /* Why */
     .why-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:50px}
-    .why-box{padding:34px;border:1px solid var(--line);background:var(--card)}
+    .why-box{
+      padding:34px;border:1px solid var(--line);background:var(--card);
+      transition:translate .18s ease,box-shadow .18s ease,border-color .18s ease;
+    }
     .why-box.good{background:var(--mint)}
+    /* Hover lifts the panel on the pixel-shadow idiom the buttons use. The lift is the
+       standalone `translate` property on purpose: the reveal animation on .why-box carries
+       `fill:both`, and an animation's final keyframe outranks a normal declaration, so a
+       :hover{transform:...} here would silently never move. */
+    .why-box:hover{translate:-4px -4px;box-shadow:6px 6px 0 var(--lilac);border-color:#c7b9db}
+    .why-box.good:hover{box-shadow:6px 6px 0 #9ecbb4;border-color:#9ecbb4}
     .why-box h3{margin:0 0 20px;font-size:24px;letter-spacing:-.03em}
     .list{display:grid;gap:4px}
     .list div{display:flex;align-items:center;gap:12px;padding:9px 0;color:#5f5963;font-size:14px;border-bottom:1px solid rgba(37,34,43,.07)}
