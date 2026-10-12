@@ -1625,7 +1625,11 @@
         img.src = base + heroPoster
         return { base, img, probe }
       })
-      Promise.race(probes.map((p) => p.probe)).then((winner) => {
+      // Promise.any, not race: race rejects the moment the first probe fails, which is why an
+      // unreachable OSS - a blocked domain, a dropped connection - used to leave the hero with
+      // neither film nor poster even though the repository holds both. any() waits for the first
+      // probe to succeed, so a dead origin is simply out of the running.
+      Promise.any(probes.map((p) => p.probe)).then((winner) => {
         // Release the loser, so a Chinese visitor is not spending throttled bandwidth on the
         // copy it is not going to use.
         probes.forEach((p) => { if (p.base !== winner) p.img.src = '' })
