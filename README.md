@@ -50,9 +50,11 @@ the race is decided. With scripting off, the OSS source written into the markup 
 Reduced-motion visitors see the poster instead of the film; it follows the same winner through the
 `--hero-poster` custom property.
 
-The two hosts hold different encodes of the same 720p, 24 fps film: about 3.0 MB in the repository
-and 2.1 MB on OSS. To host the film somewhere else, change the two base URLs in the hero script and
-the fallback URL in the `.hero-media` background rule.
+The two hosts hold the same 720p, 24 fps, 19.1 s encode, about 3.3 MB, made from the 1080p master
+with `-crf 22 -preset slow` and `+faststart`. Both the film and the poster URLs carry a `?v=`; bump
+the film's when the film is replaced and the poster's when the cover frame is, or a returning
+visitor keeps what they already have. To host the film somewhere else, change the two base URLs in
+the hero script and the fallback URL in the `.hero-media` background rule.
 
 ## Page state
 
